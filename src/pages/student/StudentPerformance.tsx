@@ -5,9 +5,9 @@ import { useAuthStore } from '@/store/auth-store';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ChartCard } from '@/components/dashboard/ChartCard';
 import { toast } from '@/components/ui/use-toast';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import ChartCard from '@/components/dashboard/ChartCard';
 
 interface Mark {
   id: string;
@@ -47,24 +47,18 @@ const StudentPerformance = () => {
     setIsLoading(true);
     try {
       // Fetch marks
-      const { data: marksData, error: marksError } = await supabase
+      const { data: marksData, error: marksError } = await (supabase as any)
         .from('marks')
         .select('*')
-        .eq('student_id', userId) as { 
-          data: Mark[] | null; 
-          error: Error | null 
-        };
+        .eq('student_id', userId);
 
       if (marksError) throw marksError;
       
       // Fetch badges
-      const { data: badgesData, error: badgesError } = await supabase
+      const { data: badgesData, error: badgesError } = await (supabase as any)
         .from('badges')
         .select('*')
-        .eq('student_id', userId) as {
-          data: Badge[] | null;
-          error: Error | null
-        };
+        .eq('student_id', userId);
 
       if (badgesError) throw badgesError;
 
@@ -167,51 +161,57 @@ const StudentPerformance = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ChartCard 
-                title="Assessment Performance" 
-                description="Scores across different assessments"
-              >
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart 
-                      data={getPerformanceData()} 
-                      margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="subject" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="Internal 1" fill="#8884d8" />
-                      <Bar dataKey="Internal 2" fill="#82ca9d" />
-                      <Bar dataKey="Mid Term" fill="#ffc658" />
-                      <Bar dataKey="Pre-Final" fill="#ff8042" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </ChartCard>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Assessment Performance</CardTitle>
+                  <CardDescription>Scores across different assessments</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart 
+                        data={getPerformanceData()} 
+                        margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="subject" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="Internal 1" fill="#8884d8" />
+                        <Bar dataKey="Internal 2" fill="#82ca9d" />
+                        <Bar dataKey="Mid Term" fill="#ffc658" />
+                        <Bar dataKey="Pre-Final" fill="#ff8042" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
 
-              <ChartCard 
-                title="Average vs Predicted" 
-                description="Comparison of your average performance with predicted scores"
-              >
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart 
-                      data={getPerformanceTrend()} 
-                      margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="average" fill="#8884d8" name="Your Average" />
-                      <Bar dataKey="predicted" fill="#82ca9d" name="Predicted" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </ChartCard>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Average vs Predicted</CardTitle>
+                  <CardDescription>Comparison of your average performance with predicted scores</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart 
+                        data={getPerformanceTrend()} 
+                        margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="average" fill="#8884d8" name="Your Average" />
+                        <Bar dataKey="predicted" fill="#82ca9d" name="Predicted" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             <Card>

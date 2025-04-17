@@ -63,23 +63,29 @@ const StudentMarks = () => {
   };
 
   const fetchMarks = async (userId: string) => {
-    // Use explicit typing to bypass TypeScript error with table not in types
-    const { data, error } = await supabase
-      .from('marks')
-      .select('*')
-      .eq('student_id', userId) as { 
-        data: Mark[] | null; 
-        error: Error | null 
-      };
+    try {
+      // Use any type to bypass TypeScript type checking for tables not in the schema
+      const { data, error } = await (supabase as any)
+        .from('marks')
+        .select('*')
+        .eq('student_id', userId);
 
-    if (error) {
+      if (error) {
+        toast({
+          title: "Failed to fetch marks",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        setMarks(data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching marks:", error);
       toast({
-        title: "Failed to fetch marks",
-        description: error.message,
+        title: "Error",
+        description: "Unexpected error fetching marks",
         variant: "destructive"
       });
-    } else {
-      setMarks(data || []);
     }
   };
 
