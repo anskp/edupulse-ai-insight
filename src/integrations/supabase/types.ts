@@ -53,6 +53,75 @@ export type Database = {
           },
         ]
       }
+      badges: {
+        Row: {
+          achieved_at: string
+          description: string
+          id: string
+          image_url: string | null
+          name: string
+          student_id: string
+        }
+        Insert: {
+          achieved_at?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          name: string
+          student_id: string
+        }
+        Update: {
+          achieved_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          student_id?: string
+        }
+        Relationships: []
+      }
+      marks: {
+        Row: {
+          created_at: string | null
+          final: number | null
+          id: string
+          internal1: number
+          internal2: number
+          mid_term: number
+          pre_final: number
+          predicted: number
+          student_id: string
+          subject: string
+          term: string
+        }
+        Insert: {
+          created_at?: string | null
+          final?: number | null
+          id?: string
+          internal1: number
+          internal2: number
+          mid_term: number
+          pre_final: number
+          predicted: number
+          student_id: string
+          subject: string
+          term: string
+        }
+        Update: {
+          created_at?: string | null
+          final?: number | null
+          id?: string
+          internal1?: number
+          internal2?: number
+          mid_term?: number
+          pre_final?: number
+          predicted?: number
+          student_id?: string
+          subject?: string
+          term?: string
+        }
+        Relationships: []
+      }
       questionnaire_responses: {
         Row: {
           created_at: string | null

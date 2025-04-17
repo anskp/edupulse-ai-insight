@@ -44,7 +44,7 @@ export const insertSampleStudentData = async () => {
 
 const insertSampleMarks = async (studentId: string) => {
   // Check if marks already exist for this student
-  const { data: existingMarks } = await (supabase as any)
+  const { data: existingMarks } = await supabase
     .from('marks')
     .select('id')
     .eq('student_id', studentId)
@@ -110,7 +110,7 @@ const insertSampleMarks = async (studentId: string) => {
   ];
 
   try {
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('marks')
       .insert(sampleMarks);
 
@@ -123,7 +123,7 @@ const insertSampleMarks = async (studentId: string) => {
 
 const insertSampleBadges = async (studentId: string) => {
   // Check if badges already exist for this student
-  const { data: existingBadges } = await (supabase as any)
+  const { data: existingBadges } = await supabase
     .from('badges')
     .select('id')
     .eq('student_id', studentId)
@@ -157,7 +157,7 @@ const insertSampleBadges = async (studentId: string) => {
   ];
 
   try {
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('badges')
       .insert(sampleBadges);
 

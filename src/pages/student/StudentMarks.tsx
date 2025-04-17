@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthStore } from '@/store/auth-store';
@@ -64,8 +63,7 @@ const StudentMarks = () => {
 
   const fetchMarks = async (userId: string) => {
     try {
-      // Use any type to bypass TypeScript type checking for tables not in the schema
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('marks')
         .select('*')
         .eq('student_id', userId);
