@@ -1,14 +1,23 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { Navigate } from 'react-router-dom';
+import { useAuthStore } from '@/store/auth-store';
 
 const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
+  const { isAuthenticated, role } = useAuthStore();
+
+  if (isAuthenticated) {
+    // Redirect based on role
+    if (role === 'admin') {
+      return <Navigate to="/admin" replace />;
+    } else if (role === 'teacher') {
+      return <Navigate to="/teacher" replace />;
+    } else if (role === 'student') {
+      return <Navigate to="/student" replace />;
+    }
+  }
+
+  // If not authenticated, redirect to login
+  return <Navigate to="/login" replace />;
 };
 
 export default Index;
