@@ -13,7 +13,7 @@ import {
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/components/ui/use-toast';
 import { insertSampleStudentData } from '@/lib/supabase-helpers';
 
 interface Mark {
@@ -39,27 +39,44 @@ const StudentMarks = () => {
     try {
       const studentId = await insertSampleStudentData();
       if (studentId) {
-        toast.success('Sample data inserted successfully!');
+        toast({
+          title: "Success",
+          description: "Sample data inserted successfully!"
+        });
         fetchMarks(studentId);
       } else {
-        toast.error('Failed to insert sample data');
+        toast({
+          title: "Error",
+          description: "Failed to insert sample data",
+          variant: "destructive"
+        });
       }
     } catch (error) {
-      toast.error('Error inserting sample data');
+      toast({
+        title: "Error",
+        description: "Error inserting sample data",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   const fetchMarks = async (userId: string) => {
+    // Use explicit typing to bypass TypeScript error with table not in types
     const { data, error } = await supabase
       .from('marks')
       .select('*')
-      .eq('student_id', userId);
+      .eq('student_id', userId) as { 
+        data: Mark[] | null; 
+        error: Error | null 
+      };
 
     if (error) {
-      toast.error('Failed to fetch marks', {
-        description: error.message
+      toast({
+        title: "Failed to fetch marks",
+        description: error.message,
+        variant: "destructive"
       });
     } else {
       setMarks(data || []);
@@ -73,7 +90,10 @@ const StudentMarks = () => {
   }, [user]);
 
   const downloadMarks = () => {
-    toast.info('Download feature coming soon!');
+    toast({
+      title: "Coming Soon",
+      description: "Download feature will be available soon!"
+    });
   };
 
   const calculateSubjectAverage = (subject: Mark) => {
@@ -98,7 +118,7 @@ const StudentMarks = () => {
               variant="outline"
               disabled={isLoading}
             >
-              Insert Sample Data
+              {isLoading ? "Loading..." : "Insert Sample Data"}
             </Button>
             <Button 
               onClick={downloadMarks} 

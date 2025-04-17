@@ -19,6 +19,9 @@ import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 
 // Student routes
 import StudentDashboard from "./pages/student/StudentDashboard";
+import StudentMarks from "./pages/student/StudentMarks";
+import StudentPerformance from "./pages/student/StudentPerformance";
+import StudentSettings from "./pages/student/StudentSettings";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +65,30 @@ const App = () => (
             element={
               <ProtectedRoute allowedRoles={['student']}>
                 <StudentDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/student/marks" 
+            element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentMarks />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/student/performance" 
+            element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentPerformance />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/student/settings" 
+            element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentSettings />
               </ProtectedRoute>
             } 
           />
