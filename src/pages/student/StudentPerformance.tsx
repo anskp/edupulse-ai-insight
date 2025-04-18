@@ -1,33 +1,17 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthStore } from '@/store/auth-store';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { toast } from '@/components/ui/use-toast';
-import { 
-  BarChart, 
-  Bar, 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
-} from 'recharts';
-import { Award, Download, Trophy } from 'lucide-react';
-import { ChartData, Mark, AttendanceRecord, AttendanceSummary } from '@/types/chart';
+import { Download } from 'lucide-react';
+import { Mark, AttendanceRecord, AttendanceSummary } from '@/types/chart';
 import { AttendanceSummaryCard } from '@/components/attendance/AttendanceSummary';
 import { AttendanceTable } from '@/components/attendance/AttendanceTable';
+import { PerformanceOverview } from '@/components/performance/PerformanceOverview';
+import { AchievementsList } from '@/components/performance/AchievementsList';
 
 interface Badge {
   id: string;
@@ -61,20 +45,13 @@ const StudentPerformance = () => {
         .select('*')
         .eq('student_id', userId);
 
-      if (error) {
-        toast({
-          title: "Failed to fetch marks",
-          description: error.message,
-          variant: "destructive"
-        });
-      } else {
-        setMarks(data || []);
-      }
+      if (error) throw error;
+      setMarks(data || []);
     } catch (error) {
       console.error("Error fetching marks:", error);
       toast({
-        title: "Error",
-        description: "Unexpected error fetching marks",
+        title: "Failed to fetch marks",
+        description: "Unexpected error occurred while fetching your marks",
         variant: "destructive"
       });
     }
@@ -87,23 +64,20 @@ const StudentPerformance = () => {
         .select('*')
         .eq('student_id', userId);
 
-      if (error) {
-        toast({
-          title: "Failed to fetch badges",
-          description: error.message,
-          variant: "destructive"
-        });
-      } else {
-        setBadges(data || []);
-      }
+      if (error) throw error;
+      setBadges(data || []);
     } catch (error) {
       console.error("Error fetching badges:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch achievements",
+        variant: "destructive"
+      });
     }
   };
 
-    const fetchAttendance = async (userId: string) => {
+  const fetchAttendance = async (userId: string) => {
     try {
-      // Fetch attendance records
       const { data: records, error: recordsError } = await supabase
         .from('attendance')
         .select('*')
@@ -111,9 +85,8 @@ const StudentPerformance = () => {
         .order('date', { ascending: false });
 
       if (recordsError) throw recordsError;
-      setAttendanceRecords(records || []);
+      setAttendanceRecords(records as AttendanceRecord[]);
 
-      // Fetch attendance summary
       const { data: summary, error: summaryError } = await supabase
         .from('attendance_summary')
         .select('*')
@@ -131,12 +104,10 @@ const StudentPerformance = () => {
     }
   };
 
-  // If no data is found, insert sample data
   const insertSampleData = async () => {
     if (!user) return;
     
-    // Sample badges
-    const sampleBadges: Omit<Badge, 'id'>[] = [
+    const sampleBadges = [
       {
         student_id: user.id,
         name: 'Perfect Attendance',
@@ -167,12 +138,11 @@ const StudentPerformance = () => {
 
       if (badgesError) throw badgesError;
       
-      // Refresh the data
-      fetchBadges(user.id);
+      await fetchBadges(user.id);
       
       toast({
-        title: "Sample badges added",
-        description: "Sample achievement badges have been added to your profile.",
+        title: "Sample data added",
+        description: "Sample achievements have been added to your profile.",
       });
     } catch (error) {
       console.error("Error inserting sample data:", error);
@@ -197,32 +167,6 @@ const StudentPerformance = () => {
       });
     }, 1500);
   };
-
-  // Prepare chart data
-  
-  // Subject Performance Chart
-  const subjectPerformanceData: ChartData[] = marks.map(mark => ({
-    name: mark.subject,
-    current: (mark.internal_1 + mark.internal_2 + (mark.internal_3 || 0) + mark.series_exam) / (mark.internal_3 ? 4 : 3),
-    predicted: mark.predicted
-  }));
-
-  // Term Progress Chart
-  const termProgressData: ChartData[] = [
-    { name: 'Term 1', average: 72, predicted: 76 },
-    { name: 'Term 2', average: 75, predicted: 78 },
-    { name: 'Term 3', average: 80, predicted: 82 },
-    { name: 'Current', average: 83, predicted: 87 }
-  ];
-
-  // Assessment Performance Chart showing breakdowns by assessment type
-  const assessmentPerformanceData: ChartData[] = marks.map(mark => ({
-    name: mark.subject,
-    internal1: mark.internal_1,
-    internal2: mark.internal_2,
-    midTerm: mark.series_exam,
-    preFinal: mark.external_exam
-  }));
 
   return (
     <DashboardLayout>
@@ -259,96 +203,7 @@ const StudentPerformance = () => {
           </TabsList>
           
           <TabsContent value="overview" className="space-y-6">
-            {marks.length > 0 ? (
-              <>
-                <div className="grid gap-6 md:grid-cols-2">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Subject Performance</CardTitle>
-                      <CardDescription>
-                        Current average vs. predicted final marks
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="h-80">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={subjectPerformanceData}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" />
-                            <YAxis domain={[0, 100]} />
-                            <Tooltip />
-                            <Legend />
-                            <Bar dataKey="current" name="Current Average" fill="#4F46E5" />
-                            <Bar dataKey="predicted" name="Predicted Final" fill="#10B981" />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Term Progress</CardTitle>
-                      <CardDescription>
-                        Performance trends over academic terms
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="h-80">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={termProgressData}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" />
-                            <YAxis domain={[0, 100]} />
-                            <Tooltip />
-                            <Legend />
-                            <Line type="monotone" dataKey="average" name="Term Average" stroke="#4F46E5" strokeWidth={2} />
-                            <Line type="monotone" dataKey="predicted" name="Predicted" stroke="#10B981" strokeWidth={2} strokeDasharray="5 5" />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Assessment Performance</CardTitle>
-                    <CardDescription>
-                      Breakdown of marks by assessment type
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-80">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={assessmentPerformanceData}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
-                          <YAxis domain={[0, 100]} />
-                          <Tooltip />
-                          <Legend />
-                          <Bar dataKey="internal1" name="Internal 1" fill="#4F46E5" />
-                          <Bar dataKey="internal2" name="Internal 2" fill="#8B5CF6" />
-                          <Bar dataKey="midTerm" name="Mid Term" fill="#EC4899" />
-                          <Bar dataKey="preFinal" name="Pre-Final" fill="#F59E0B" />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-              </>
-            ) : (
-              <Card>
-                <CardContent className="flex flex-col items-center justify-center p-6">
-                  <div className="rounded-full bg-muted p-6 mb-4">
-                    <Trophy className="h-10 w-10 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">No Performance Data</h3>
-                  <p className="text-center text-muted-foreground mb-4">
-                    We don't have any performance data to display yet. Load sample data to see how your progress report would look.
-                  </p>
-                  <Button onClick={insertSampleData}>Load Sample Data</Button>
-                </CardContent>
-              </Card>
-            )}
+            <PerformanceOverview marks={marks} onInsertSampleData={insertSampleData} />
           </TabsContent>
           
           <TabsContent value="attendance" className="space-y-6">
@@ -357,54 +212,11 @@ const StudentPerformance = () => {
                 <AttendanceSummaryCard key={summary.course_code} summary={summary} />
               ))}
             </div>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Attendance Records</CardTitle>
-                <CardDescription>
-                  Detailed attendance history for all courses
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <AttendanceTable records={attendanceRecords} />
-              </CardContent>
-            </Card>
+            <AttendanceTable records={attendanceRecords} />
           </TabsContent>
           
           <TabsContent value="achievements" className="space-y-6">
-            {badges.length > 0 ? (
-              <div className="grid gap-6 md:grid-cols-3">
-                {badges.map((badge) => (
-                  <Card key={badge.id}>
-                    <CardContent className="flex flex-col items-center justify-center p-6">
-                      <div className="rounded-full bg-primary/10 p-4 mb-4">
-                        <Award className="h-8 w-8 text-primary" />
-                      </div>
-                      <h3 className="text-xl font-semibold mb-1">{badge.name}</h3>
-                      <p className="text-center text-muted-foreground mb-4">
-                        {badge.description}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Earned on {new Date(badge.achieved_at).toLocaleDateString()}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <Card>
-                <CardContent className="flex flex-col items-center justify-center p-6">
-                  <div className="rounded-full bg-muted p-6 mb-4">
-                    <Award className="h-10 w-10 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">No Achievements Yet</h3>
-                  <p className="text-center text-muted-foreground mb-4">
-                    You haven't earned any badges or achievements yet. Continue working hard to unlock achievements!
-                  </p>
-                  <Button onClick={insertSampleData}>Load Sample Achievements</Button>
-                </CardContent>
-              </Card>
-            )}
+            <AchievementsList badges={badges} onInsertSampleData={insertSampleData} />
           </TabsContent>
         </Tabs>
       </div>
