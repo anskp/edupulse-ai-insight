@@ -13,9 +13,18 @@ import Unauthorized from "./pages/Unauthorized";
 
 // Admin routes
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminTeachers from "./pages/admin/AdminTeachers";
+import AdminStudents from "./pages/admin/AdminStudents";
+import AdminReports from "./pages/admin/AdminReports";
+import AdminSettings from "./pages/admin/AdminSettings";
 
 // Teacher routes
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
+import TeacherStudents from "./pages/teacher/TeacherStudents";
+import TeacherStudentDetail from "./pages/teacher/TeacherStudentDetail";
+import TeacherMarks from "./pages/teacher/TeacherMarks";
+import TeacherPredictions from "./pages/teacher/TeacherPredictions";
+import TeacherSettings from "./pages/teacher/TeacherSettings";
 
 // Student routes
 import StudentDashboard from "./pages/student/StudentDashboard";
@@ -48,6 +57,38 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
+          <Route 
+            path="/admin/teachers" 
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminTeachers />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/students" 
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminStudents />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/reports" 
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminReports />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/settings" 
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminSettings />
+              </ProtectedRoute>
+            } 
+          />
           
           {/* Teacher routes */}
           <Route 
@@ -55,6 +96,46 @@ const App = () => (
             element={
               <ProtectedRoute allowedRoles={['teacher']}>
                 <TeacherDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/teacher/students" 
+            element={
+              <ProtectedRoute allowedRoles={['teacher']}>
+                <TeacherStudents />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/teacher/students/:id" 
+            element={
+              <ProtectedRoute allowedRoles={['teacher']}>
+                <TeacherStudentDetail />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/teacher/marks" 
+            element={
+              <ProtectedRoute allowedRoles={['teacher']}>
+                <TeacherMarks />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/teacher/predictions" 
+            element={
+              <ProtectedRoute allowedRoles={['teacher']}>
+                <TeacherPredictions />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/teacher/settings" 
+            element={
+              <ProtectedRoute allowedRoles={['teacher']}>
+                <TeacherSettings />
               </ProtectedRoute>
             } 
           />

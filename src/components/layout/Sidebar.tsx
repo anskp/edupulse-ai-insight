@@ -14,6 +14,8 @@ import {
   LogOut,
   ChevronLeft,
   Menu,
+  FileText,
+  Cog,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -53,13 +55,13 @@ const Sidebar = ({ className }: SidebarProps) => {
     { to: '/admin', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
     { to: '/admin/teachers', label: 'Teachers', icon: <Users size={20} /> },
     { to: '/admin/students', label: 'Students', icon: <GraduationCap size={20} /> },
-    { to: '/admin/reports', label: 'Reports', icon: <BarChart2 size={20} /> },
-    { to: '/admin/settings', label: 'Settings', icon: <Settings size={20} /> },
+    { to: '/admin/reports', label: 'Reports', icon: <FileText size={20} /> },
+    { to: '/admin/settings', label: 'Settings', icon: <Cog size={20} /> },
   ];
 
   const teacherLinks = [
     { to: '/teacher', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
-    { to: '/teacher/students', label: 'My Students', icon: <GraduationCap size={20} /> },
+    { to: '/teacher/students', label: 'Students', icon: <GraduationCap size={20} /> },
     { to: '/teacher/marks', label: 'Marks', icon: <BookOpen size={20} /> },
     { to: '/teacher/predictions', label: 'Predictions', icon: <BarChart2 size={20} /> },
     { to: '/teacher/settings', label: 'Settings', icon: <Settings size={20} /> },
@@ -73,6 +75,11 @@ const Sidebar = ({ className }: SidebarProps) => {
   ];
 
   const links = role === 'admin' ? adminLinks : role === 'teacher' ? teacherLinks : studentLinks;
+
+  // Close mobile sidebar when navigating to a new page
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [location.pathname]);
 
   return (
     <>
@@ -131,7 +138,7 @@ const Sidebar = ({ className }: SidebarProps) => {
                     to={link.to}
                     className={cn(
                       'flex items-center px-3 py-2 rounded-md transition-colors',
-                      location.pathname === link.to
+                      location.pathname === link.to || location.pathname.startsWith(link.to + '/')
                         ? 'bg-sidebar-accent text-sidebar-accent-foreground'
                         : 'text-sidebar-foreground hover:bg-sidebar-primary/10',
                       isCollapsed && 'justify-center'
