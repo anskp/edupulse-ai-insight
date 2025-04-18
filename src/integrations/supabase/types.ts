@@ -53,6 +53,45 @@ export type Database = {
           },
         ]
       }
+      attendance: {
+        Row: {
+          academic_year: string
+          course_code: string
+          created_at: string | null
+          date: string
+          id: string
+          marked_by: string | null
+          reason: string | null
+          semester: number
+          status: string
+          student_id: string
+        }
+        Insert: {
+          academic_year: string
+          course_code: string
+          created_at?: string | null
+          date: string
+          id?: string
+          marked_by?: string | null
+          reason?: string | null
+          semester: number
+          status: string
+          student_id: string
+        }
+        Update: {
+          academic_year?: string
+          course_code?: string
+          created_at?: string | null
+          date?: string
+          id?: string
+          marked_by?: string | null
+          reason?: string | null
+          semester?: number
+          status?: string
+          student_id?: string
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           achieved_at: string
@@ -219,7 +258,21 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      attendance_summary: {
+        Row: {
+          absent_count: number | null
+          academic_year: string | null
+          attendance_percentage: number | null
+          course_code: string | null
+          excused_count: number | null
+          late_count: number | null
+          present_count: number | null
+          semester: number | null
+          student_id: string | null
+          total_classes: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_grade_point: {

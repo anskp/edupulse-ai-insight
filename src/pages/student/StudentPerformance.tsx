@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthStore } from '@/store/auth-store';
@@ -26,20 +25,9 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import { Award, Download, Trophy } from 'lucide-react';
-import { ChartData } from '@/types/chart';
-
-interface Mark {
-  id: string;
-  student_id: string;
-  subject: string;
-  internal1: number;
-  internal2: number;
-  mid_term: number;
-  pre_final: number;
-  final: number | null;
-  predicted: number;
-  term: string;
-}
+import { ChartData, Mark, AttendanceRecord, AttendanceSummary } from '@/types/chart';
+import { AttendanceSummaryCard } from '@/components/attendance/AttendanceSummary';
+import { AttendanceTable } from '@/components/attendance/AttendanceTable';
 
 interface Badge {
   id: string;
@@ -54,12 +42,15 @@ const StudentPerformance = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [marks, setMarks] = useState<Mark[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
+  const [attendanceSummary, setAttendanceSummary] = useState<AttendanceSummary[]>([]);
   const { user } = useAuthStore();
 
   useEffect(() => {
     if (user) {
       fetchMarks(user.id);
       fetchBadges(user.id);
+      fetchAttendance(user.id);
     }
   }, [user]);
 
@@ -107,6 +98,36 @@ const StudentPerformance = () => {
       }
     } catch (error) {
       console.error("Error fetching badges:", error);
+    }
+  };
+
+    const fetchAttendance = async (userId: string) => {
+    try {
+      // Fetch attendance records
+      const { data: records, error: recordsError } = await supabase
+        .from('attendance')
+        .select('*')
+        .eq('student_id', userId)
+        .order('date', { ascending: false });
+
+      if (recordsError) throw recordsError;
+      setAttendanceRecords(records || []);
+
+      // Fetch attendance summary
+      const { data: summary, error: summaryError } = await supabase
+        .from('attendance_summary')
+        .select('*')
+        .eq('student_id', userId);
+
+      if (summaryError) throw summaryError;
+      setAttendanceSummary(summary || []);
+    } catch (error) {
+      console.error("Error fetching attendance:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch attendance data",
+        variant: "destructive"
+      });
     }
   };
 
@@ -182,7 +203,7 @@ const StudentPerformance = () => {
   // Subject Performance Chart
   const subjectPerformanceData: ChartData[] = marks.map(mark => ({
     name: mark.subject,
-    current: (mark.internal1 + mark.internal2 + mark.mid_term + mark.pre_final) / 4,
+    current: (mark.internal_1 + mark.internal_2 + (mark.internal_3 || 0) + mark.series_exam) / (mark.internal_3 ? 4 : 3),
     predicted: mark.predicted
   }));
 
@@ -197,10 +218,10 @@ const StudentPerformance = () => {
   // Assessment Performance Chart showing breakdowns by assessment type
   const assessmentPerformanceData: ChartData[] = marks.map(mark => ({
     name: mark.subject,
-    internal1: mark.internal1,
-    internal2: mark.internal2,
-    midTerm: mark.mid_term,
-    preFinal: mark.pre_final
+    internal1: mark.internal_1,
+    internal2: mark.internal_2,
+    midTerm: mark.series_exam,
+    preFinal: mark.external_exam
   }));
 
   return (
@@ -233,7 +254,7 @@ const StudentPerformance = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="assessments">Assessments</TabsTrigger>
+            <TabsTrigger value="attendance">Attendance</TabsTrigger>
             <TabsTrigger value="achievements">Achievements</TabsTrigger>
           </TabsList>
           
@@ -330,108 +351,24 @@ const StudentPerformance = () => {
             )}
           </TabsContent>
           
-          <TabsContent value="assessments" className="space-y-6">
-            {marks.length > 0 ? (
-              <>
-                <div className="grid gap-6 md:grid-cols-3">
-                  {marks.map((mark) => (
-                    <Card key={mark.id}>
-                      <CardHeader>
-                        <CardTitle>{mark.subject}</CardTitle>
-                        <CardDescription>{mark.term}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="space-y-1">
-                              <p className="text-xs text-muted-foreground">Internal 1</p>
-                              <p className="text-lg font-semibold">{mark.internal1}%</p>
-                            </div>
-                            <div className="space-y-1">
-                              <p className="text-xs text-muted-foreground">Internal 2</p>
-                              <p className="text-lg font-semibold">{mark.internal2}%</p>
-                            </div>
-                            <div className="space-y-1">
-                              <p className="text-xs text-muted-foreground">Mid Term</p>
-                              <p className="text-lg font-semibold">{mark.mid_term}%</p>
-                            </div>
-                            <div className="space-y-1">
-                              <p className="text-xs text-muted-foreground">Pre-Final</p>
-                              <p className="text-lg font-semibold">{mark.pre_final}%</p>
-                            </div>
-                          </div>
-                          
-                          <div className="pt-2 border-t">
-                            <div className="flex justify-between items-center">
-                              <div className="space-y-1">
-                                <p className="text-xs text-muted-foreground">Average</p>
-                                <p className="text-lg font-semibold">
-                                  {((mark.internal1 + mark.internal2 + mark.mid_term + mark.pre_final) / 4).toFixed(1)}%
-                                </p>
-                              </div>
-                              <div className="space-y-1 text-right">
-                                <p className="text-xs text-muted-foreground">Predicted Final</p>
-                                <p className="text-lg font-semibold text-green-600">{mark.predicted}%</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Improvement Opportunities</CardTitle>
-                    <CardDescription>
-                      Areas where you can focus to improve your performance
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {marks
-                        .sort((a, b) => a.predicted - b.predicted)
-                        .slice(0, 2)
-                        .map((mark) => (
-                          <div key={mark.id} className="p-4 border rounded-lg">
-                            <div className="flex justify-between items-start mb-2">
-                              <h3 className="font-semibold">{mark.subject}</h3>
-                              <span className="text-sm text-muted-foreground">Current Avg: {((mark.internal1 + mark.internal2 + mark.mid_term + mark.pre_final) / 4).toFixed(1)}%</span>
-                            </div>
-                            <p className="text-sm text-muted-foreground mb-3">
-                              Focus on improving your {
-                                Math.min(mark.internal1, mark.internal2, mark.mid_term, mark.pre_final) === mark.internal1 ? "first internal assessment" :
-                                Math.min(mark.internal1, mark.internal2, mark.mid_term, mark.pre_final) === mark.internal2 ? "second internal assessment" :
-                                Math.min(mark.internal1, mark.internal2, mark.mid_term, mark.pre_final) === mark.mid_term ? "mid-term examination" :
-                                "pre-final examination"
-                              } performance.
-                            </p>
-                            <div className="text-sm">
-                              <span className="font-medium">Recommendation: </span>
-                              Consider additional practice and review in this subject to strengthen your understanding.
-                            </div>
-                          </div>
-                        ))
-                      }
-                    </div>
-                  </CardContent>
-                </Card>
-              </>
-            ) : (
-              <Card>
-                <CardContent className="flex flex-col items-center justify-center p-6">
-                  <div className="rounded-full bg-muted p-6 mb-4">
-                    <Trophy className="h-10 w-10 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">No Assessment Data</h3>
-                  <p className="text-center text-muted-foreground mb-4">
-                    We don't have any assessment data to display yet. Load sample data to see how your assessments would look.
-                  </p>
-                  <Button onClick={insertSampleData}>Load Sample Data</Button>
-                </CardContent>
-              </Card>
-            )}
+          <TabsContent value="attendance" className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              {attendanceSummary.map((summary) => (
+                <AttendanceSummaryCard key={summary.course_code} summary={summary} />
+              ))}
+            </div>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Attendance Records</CardTitle>
+                <CardDescription>
+                  Detailed attendance history for all courses
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AttendanceTable records={attendanceRecords} />
+              </CardContent>
+            </Card>
           </TabsContent>
           
           <TabsContent value="achievements" className="space-y-6">
