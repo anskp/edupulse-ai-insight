@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export const insertSampleStudentData = async () => {
@@ -59,53 +58,51 @@ const insertSampleMarks = async (studentId: string) => {
   const sampleMarks = [
     {
       student_id: studentId,
-      subject: 'Mathematics',
-      internal1: 85,
-      internal2: 88,
-      mid_term: 82,
-      pre_final: 90,
-      predicted: 92,
-      term: 'Spring 2025'
-    },
-    {
-      student_id: studentId,
-      subject: 'Science',
-      internal1: 78,
-      internal2: 82,
-      mid_term: 75,
-      pre_final: 80,
-      predicted: 83,
-      term: 'Spring 2025'
-    },
-    {
-      student_id: studentId,
-      subject: 'History',
-      internal1: 72,
-      internal2: 68,
-      mid_term: 70,
-      pre_final: 75,
-      predicted: 78,
-      term: 'Spring 2025'
-    },
-    {
-      student_id: studentId,
-      subject: 'English',
-      internal1: 90,
-      internal2: 92,
-      mid_term: 88,
-      pre_final: 95,
-      predicted: 94,
-      term: 'Spring 2025'
-    },
-    {
-      student_id: studentId,
+      course_code: 'CS101',
+      course_name: 'Introduction to Programming',
       subject: 'Computer Science',
-      internal1: 95,
-      internal2: 92,
-      mid_term: 90,
-      pre_final: 98,
-      predicted: 96,
-      term: 'Spring 2025'
+      internal_1: 85,
+      internal_2: 88,
+      internal_3: 92,
+      external_exam: 82,
+      series_exam: 90,
+      predicted: 92,
+      semester: 1,
+      academic_year: '2024-25',
+      department: 'Computer Science',
+      batch_year: '2024'
+    },
+    {
+      student_id: studentId,
+      course_code: 'MA101',
+      course_name: 'Engineering Mathematics I',
+      subject: 'Mathematics',
+      internal_1: 78,
+      internal_2: 82,
+      internal_3: 85,
+      external_exam: 75,
+      series_exam: 80,
+      predicted: 83,
+      semester: 1,
+      academic_year: '2024-25',
+      department: 'Computer Science',
+      batch_year: '2024'
+    },
+    {
+      student_id: studentId,
+      course_code: 'PH101',
+      course_name: 'Engineering Physics',
+      subject: 'Physics',
+      internal_1: 72,
+      internal_2: 68,
+      internal_3: 75,
+      external_exam: 70,
+      series_exam: 75,
+      predicted: 78,
+      semester: 1,
+      academic_year: '2024-25',
+      department: 'Computer Science',
+      batch_year: '2024'
     }
   ];
 

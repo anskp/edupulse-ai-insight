@@ -82,43 +82,79 @@ export type Database = {
       }
       marks: {
         Row: {
+          academic_year: string | null
+          batch_year: string | null
+          cgpa: number | null
+          course_code: string | null
+          course_name: string | null
           created_at: string | null
-          final: number | null
+          credit_hours: number | null
+          department: string | null
+          external_exam: number
+          grade_point: number | null
           id: string
-          internal1: number
-          internal2: number
-          mid_term: number
-          pre_final: number
+          internal_1: number
+          internal_2: number
+          internal_3: number | null
+          letter_grade: string | null
+          max_marks: number | null
           predicted: number
+          semester: number
+          series_exam: number
+          sgpa: number | null
           student_id: string
           subject: string
-          term: string
+          university_exam: number | null
         }
         Insert: {
+          academic_year?: string | null
+          batch_year?: string | null
+          cgpa?: number | null
+          course_code?: string | null
+          course_name?: string | null
           created_at?: string | null
-          final?: number | null
+          credit_hours?: number | null
+          department?: string | null
+          external_exam: number
+          grade_point?: number | null
           id?: string
-          internal1: number
-          internal2: number
-          mid_term: number
-          pre_final: number
+          internal_1: number
+          internal_2: number
+          internal_3?: number | null
+          letter_grade?: string | null
+          max_marks?: number | null
           predicted: number
+          semester?: number
+          series_exam: number
+          sgpa?: number | null
           student_id: string
           subject: string
-          term: string
+          university_exam?: number | null
         }
         Update: {
+          academic_year?: string | null
+          batch_year?: string | null
+          cgpa?: number | null
+          course_code?: string | null
+          course_name?: string | null
           created_at?: string | null
-          final?: number | null
+          credit_hours?: number | null
+          department?: string | null
+          external_exam?: number
+          grade_point?: number | null
           id?: string
-          internal1?: number
-          internal2?: number
-          mid_term?: number
-          pre_final?: number
+          internal_1?: number
+          internal_2?: number
+          internal_3?: number | null
+          letter_grade?: string | null
+          max_marks?: number | null
           predicted?: number
+          semester?: number
+          series_exam?: number
+          sgpa?: number | null
           student_id?: string
           subject?: string
-          term?: string
+          university_exam?: number | null
         }
         Relationships: []
       }
@@ -186,7 +222,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_grade_point: {
+        Args: { marks: number }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never

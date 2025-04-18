@@ -9,27 +9,23 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { insertSampleStudentData } from '@/lib/supabase-helpers';
-
-interface Mark {
-  id: string;
-  student_id: string;
-  subject: string;
-  internal1: number;
-  internal2: number;
-  mid_term: number;
-  pre_final: number;
-  final: number | null;
-  predicted: number;
-  term: string;
-}
+import { Mark } from '@/types/chart';
 
 const StudentMarks = () => {
   const [marks, setMarks] = useState<Mark[]>([]);
+  const [selectedSemester, setSelectedSemester] = useState<string>('1');
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -42,7 +38,7 @@ const StudentMarks = () => {
           title: "Success",
           description: "Sample data inserted successfully!"
         });
-        fetchMarks(studentId);
+        fetchMarks(studentId, parseInt(selectedSemester));
       } else {
         toast({
           title: "Error",
@@ -61,12 +57,13 @@ const StudentMarks = () => {
     }
   };
 
-  const fetchMarks = async (userId: string) => {
+  const fetchMarks = async (userId: string, semester: number) => {
     try {
       const { data, error } = await supabase
         .from('marks')
         .select('*')
-        .eq('student_id', userId);
+        .eq('student_id', userId)
+        .eq('semester', semester);
 
       if (error) {
         toast({
@@ -89,9 +86,14 @@ const StudentMarks = () => {
 
   useEffect(() => {
     if (user) {
-      fetchMarks(user.id);
+      fetchMarks(user.id, parseInt(selectedSemester));
     }
-  }, [user]);
+  }, [user, selectedSemester]);
+
+  const calculateAverage = (mark: Mark) => {
+    const internals = [mark.internal_1, mark.internal_2, mark.internal_3].filter(Boolean);
+    return internals.length ? (internals.reduce((a, b) => a + b, 0) / internals.length).toFixed(2) : 'N/A';
+  };
 
   const downloadMarks = () => {
     toast({
@@ -100,22 +102,11 @@ const StudentMarks = () => {
     });
   };
 
-  const calculateSubjectAverage = (subject: Mark) => {
-    const assessments = [
-      subject.internal1, 
-      subject.internal2, 
-      subject.mid_term, 
-      subject.pre_final
-    ];
-    const average = assessments.reduce((a, b) => a + b, 0) / assessments.length;
-    return average.toFixed(2);
-  };
-
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">My Academic Marks</h1>
+          <h1 className="text-2xl font-bold">My Academic Performance</h1>
           <div className="flex gap-2">
             <Button 
               onClick={insertSampleData} 
@@ -134,38 +125,70 @@ const StudentMarks = () => {
             </Button>
           </div>
         </div>
+
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-[200px]">
+            <Select 
+              value={selectedSemester} 
+              onValueChange={setSelectedSemester}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select semester" />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: 8 }, (_, i) => (
+                  <SelectItem key={i + 1} value={(i + 1).toString()}>
+                    Semester {i + 1}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
         
         {marks.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            No marks available. Click "Insert Sample Data" to add sample marks.
+            No marks available for this semester. Click "Insert Sample Data" to add sample marks.
           </div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Subject</TableHead>
+                <TableHead>Course Code</TableHead>
+                <TableHead>Course Name</TableHead>
                 <TableHead>Internal 1</TableHead>
                 <TableHead>Internal 2</TableHead>
-                <TableHead>Mid Term</TableHead>
-                <TableHead>Pre-Final</TableHead>
-                <TableHead>Predicted</TableHead>
-                <TableHead>Average</TableHead>
-                <TableHead>Term</TableHead>
+                <TableHead>Internal 3</TableHead>
+                <TableHead>Avg Internal</TableHead>
+                <TableHead>Series</TableHead>
+                <TableHead>External</TableHead>
+                <TableHead>Grade</TableHead>
+                <TableHead>Credits</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {marks.map((subject) => (
                 <TableRow key={subject.id}>
-                  <TableCell>{subject.subject}</TableCell>
-                  <TableCell>{subject.internal1}</TableCell>
-                  <TableCell>{subject.internal2}</TableCell>
-                  <TableCell>{subject.mid_term}</TableCell>
-                  <TableCell>{subject.pre_final}</TableCell>
-                  <TableCell>{subject.predicted}</TableCell>
-                  <TableCell>{calculateSubjectAverage(subject)}</TableCell>
-                  <TableCell>{subject.term}</TableCell>
+                  <TableCell>{subject.course_code || 'N/A'}</TableCell>
+                  <TableCell>{subject.course_name || subject.subject}</TableCell>
+                  <TableCell>{subject.internal_1}</TableCell>
+                  <TableCell>{subject.internal_2}</TableCell>
+                  <TableCell>{subject.internal_3 || 'N/A'}</TableCell>
+                  <TableCell>{calculateAverage(subject)}</TableCell>
+                  <TableCell>{subject.series_exam}</TableCell>
+                  <TableCell>{subject.external_exam}</TableCell>
+                  <TableCell className="font-semibold">
+                    {subject.letter_grade || 'N/A'}
+                  </TableCell>
+                  <TableCell>{subject.credit_hours}</TableCell>
                 </TableRow>
               ))}
+              <TableRow className="bg-muted/50">
+                <TableCell colSpan={6}>Semester GPA</TableCell>
+                <TableCell colSpan={4} className="font-bold">
+                  {marks[0]?.sgpa?.toFixed(2) || 'N/A'}
+                </TableCell>
+              </TableRow>
             </TableBody>
           </Table>
         )}

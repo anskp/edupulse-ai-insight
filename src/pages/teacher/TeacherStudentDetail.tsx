@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -41,6 +40,7 @@ import {
 import { ArrowLeft, BarChart2, Calendar, Download, Mail, MapPin, Phone, User } from 'lucide-react';
 import { generateRandomStudentData } from '@/lib/supabase-helpers';
 import { ChartData } from '@/types/chart';
+import { AlertCircle, CheckCircle } from 'lucide-react';
 
 interface StudentDetail {
   id: string;
@@ -76,17 +76,13 @@ const TeacherStudentDetail = () => {
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    // Simulate fetching student data
     const fetchStudent = async () => {
       setLoading(true);
       try {
-        // In a real app, this would be an API call
-        // For now, let's create a mock student based on the ID
         const students = generateRandomStudentData(20);
         const studentIndex = parseInt(id || '1', 10) % students.length;
         const studentData = students[studentIndex];
         
-        // Simulate API delay
         setTimeout(() => {
           setStudent(studentData as unknown as StudentDetail);
           setLoading(false);
@@ -146,14 +142,12 @@ const TeacherStudentDetail = () => {
     }, 1500);
   };
 
-  // Prepare chart data from student's subject performance
   const subjectPerformanceData: ChartData[] = student?.subjectPerformance.map(subject => ({
     name: subject.subject,
     actual: (subject.internal1 + subject.internal2 + subject.midTerm + subject.preFinal) / 4,
     predicted: subject.predicted
   })) || [];
 
-  // Attendance data for the past months (mock data)
   const attendanceData = [
     { name: 'Jan', attendance: 92 },
     { name: 'Feb', attendance: 88 },
@@ -472,8 +466,5 @@ const TeacherStudentDetail = () => {
     </DashboardLayout>
   );
 };
-
-// Add missing import
-import { CheckCircle } from 'lucide-react';
 
 export default TeacherStudentDetail;
