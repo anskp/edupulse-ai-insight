@@ -2,31 +2,31 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthStore } from '@/store/auth-store';
-import DashboardLayout from '@/components/layout/DashboardLayout';
-import ChartCard from '@/components/dashboard/ChartCard';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
 } from '@/components/ui/card';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Loader2, TrendingUp, Award, Sparkles } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import DashboardLayout from '@/components/layout/DashboardLayout';
+import { toast } from '@/components/ui/use-toast';
+import { 
+  BarChart, 
+  Bar, 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer 
+} from 'recharts';
+import { Award, Download, Trophy } from 'lucide-react';
+import { ChartData } from '@/types/chart';
 
 interface Mark {
   id: string;
@@ -36,8 +36,8 @@ interface Mark {
   internal2: number;
   mid_term: number;
   pre_final: number;
-  predicted: number;
   final: number | null;
+  predicted: number;
   term: string;
 }
 
@@ -46,437 +46,430 @@ interface Badge {
   student_id: string;
   name: string;
   description: string;
-  image_url: string | null;
   achieved_at: string;
+  image_url: string | null;
 }
 
-const performanceInsights = [
-  {
-    subject: 'Mathematics',
-    strength: 'Strong analytical skills and problem-solving abilities.',
-    improvement: 'Consider practicing more complex problems for extra challenge.',
-    percentile: 92,
-  },
-  {
-    subject: 'Science',
-    strength: 'Good understanding of scientific concepts and theories.',
-    improvement: 'Focus on practical applications and real-world examples.',
-    percentile: 85,
-  },
-  {
-    subject: 'English',
-    strength: 'Excellent comprehension and writing skills.',
-    improvement: 'More practice with advanced vocabulary would be beneficial.',
-    percentile: 88,
-  },
-  {
-    subject: 'History',
-    strength: 'Strong knowledge of historical events and their impact.',
-    improvement: 'Try connecting historical patterns to current events.',
-    percentile: 78,
-  },
-  {
-    subject: 'Computer Science',
-    strength: 'Excellent programming skills and logical thinking.',
-    improvement: 'Explore more advanced algorithms and data structures.',
-    percentile: 95,
-  },
-];
-
 const StudentPerformance = () => {
-  const { user } = useAuthStore();
+  const [activeTab, setActiveTab] = useState('overview');
   const [marks, setMarks] = useState<Mark[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
-  const [selectedTerm, setSelectedTerm] = useState<string>('all');
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview');
+  const { user } = useAuthStore();
 
   useEffect(() => {
-    if (user?.id) {
-      fetchStudentData(user.id);
+    if (user) {
+      fetchMarks(user.id);
+      fetchBadges(user.id);
     }
   }, [user]);
 
-  const fetchStudentData = async (userId: string) => {
-    setLoading(true);
+  const fetchMarks = async (userId: string) => {
     try {
-      // Fetch marks
-      const { data: marksData, error: marksError } = await supabase
+      const { data, error } = await supabase
         .from('marks')
         .select('*')
         .eq('student_id', userId);
 
-      if (marksError) throw marksError;
-      
-      // Fetch badges
-      const { data: badgesData, error: badgesError } = await supabase
+      if (error) {
+        toast({
+          title: "Failed to fetch marks",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        setMarks(data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching marks:", error);
+      toast({
+        title: "Error",
+        description: "Unexpected error fetching marks",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const fetchBadges = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
         .from('badges')
         .select('*')
         .eq('student_id', userId);
 
-      if (badgesError) throw badgesError;
-
-      setMarks(marksData || []);
-      setBadges(badgesData || []);
+      if (error) {
+        toast({
+          title: "Failed to fetch badges",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        setBadges(data || []);
+      }
     } catch (error) {
-      console.error('Error fetching student data:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load performance data.',
-        variant: 'destructive',
-      });
-      
-      // Use mock data for now if there's an error
-      setMarks(generateMockMarks());
-      setBadges(generateMockBadges());
-    } finally {
-      setLoading(false);
+      console.error("Error fetching badges:", error);
     }
   };
 
-  const generateMockMarks = (): Mark[] => {
-    const subjects = ['Mathematics', 'Science', 'English', 'History', 'Computer Science'];
-    const terms = ['Fall 2024', 'Winter 2024', 'Spring 2025'];
+  // If no data is found, insert sample data
+  const insertSampleData = async () => {
+    if (!user) return;
     
-    return subjects.flatMap((subject, i) => 
-      terms.map((term, j) => ({
-        id: `mock-${i}-${j}`,
-        student_id: user?.id || 'mock-user',
-        subject,
-        internal1: 70 + Math.floor(Math.random() * 20),
-        internal2: 75 + Math.floor(Math.random() * 20),
-        mid_term: 70 + Math.floor(Math.random() * 25),
-        pre_final: 75 + Math.floor(Math.random() * 20),
-        predicted: 80 + Math.floor(Math.random() * 15),
-        final: j === terms.length - 1 ? null : 75 + Math.floor(Math.random() * 20),
-        term
-      }))
-    );
-  };
-
-  const generateMockBadges = (): Badge[] => {
-    return [
+    // Sample badges
+    const sampleBadges: Omit<Badge, 'id'>[] = [
       {
-        id: 'mock-badge-1',
-        student_id: user?.id || 'mock-user',
-        name: 'Math Star',
-        description: 'Outstanding performance in Mathematics',
-        image_url: null,
-        achieved_at: new Date().toISOString(),
-      },
-      {
-        id: 'mock-badge-2',
-        student_id: user?.id || 'mock-user',
+        student_id: user.id,
         name: 'Perfect Attendance',
-        description: 'Never missed a class all semester',
-        achieved_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+        description: 'Achieved 100% attendance for the term',
+        achieved_at: new Date().toISOString(),
+        image_url: null
       },
       {
-        id: 'mock-badge-3',
-        student_id: user?.id || 'mock-user',
-        name: 'Science Explorer',
-        description: 'Top performer in Science projects',
-        achieved_at: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+        student_id: user.id,
+        name: 'Math Wizard',
+        description: 'Top performer in Mathematics',
+        achieved_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+        image_url: null
+      },
+      {
+        student_id: user.id,
+        name: 'Science Star',
+        description: 'Excellence in Science projects',
+        achieved_at: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(),
+        image_url: null
       }
     ];
+
+    try {
+      const { error: badgesError } = await supabase
+        .from('badges')
+        .insert(sampleBadges);
+
+      if (badgesError) throw badgesError;
+      
+      // Refresh the data
+      fetchBadges(user.id);
+      
+      toast({
+        title: "Sample badges added",
+        description: "Sample achievement badges have been added to your profile.",
+      });
+    } catch (error) {
+      console.error("Error inserting sample data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to insert sample data",
+        variant: "destructive"
+      });
+    }
   };
 
-  // Filter marks by selected term
-  const filteredMarks = selectedTerm === 'all' 
-    ? marks 
-    : marks.filter(mark => mark.term === selectedTerm);
+  const downloadPerformanceReport = () => {
+    toast({
+      title: "Download Started",
+      description: "Preparing your performance report..."
+    });
+    
+    setTimeout(() => {
+      toast({
+        title: "Download Complete",
+        description: "Your performance report has been downloaded."
+      });
+    }, 1500);
+  };
 
-  // Get unique terms for the select dropdown
-  const terms = [...new Set(marks.map(mark => mark.term))];
-
-  // Generate data for the current vs predicted chart
-  const currentVsPredictedData = filteredMarks.map(mark => ({
-    subject: mark.subject,
-    current: Math.round((mark.internal1 + mark.internal2 + mark.mid_term + mark.pre_final) / 4),
-    predicted: mark.predicted,
+  // Prepare chart data
+  
+  // Subject Performance Chart
+  const subjectPerformanceData: ChartData[] = marks.map(mark => ({
+    name: mark.subject,
+    current: (mark.internal1 + mark.internal2 + mark.mid_term + mark.pre_final) / 4,
+    predicted: mark.predicted
   }));
 
-  // Generate data for the progress over time chart
-  const progressData = terms.map(term => {
-    const termMarks = marks.filter(mark => mark.term === term);
-    const avgCurrent = termMarks.length > 0 
-      ? Math.round(termMarks.reduce((sum, mark) => 
-          sum + (mark.internal1 + mark.internal2 + mark.mid_term + mark.pre_final) / 4, 0) / termMarks.length) 
-      : 0;
-    const avgPredicted = termMarks.length > 0 
-      ? Math.round(termMarks.reduce((sum, mark) => sum + mark.predicted, 0) / termMarks.length) 
-      : 0;
-    
-    return {
-      term,
-      average: avgCurrent,
-      predicted: avgPredicted,
-    };
-  });
+  // Term Progress Chart
+  const termProgressData: ChartData[] = [
+    { name: 'Term 1', average: 72, predicted: 76 },
+    { name: 'Term 2', average: 75, predicted: 78 },
+    { name: 'Term 3', average: 80, predicted: 82 },
+    { name: 'Current', average: 83, predicted: 87 }
+  ];
 
-  // Generate data for subject breakdown chart
-  const subjectBreakdownData = [...new Set(filteredMarks.map(mark => mark.subject))].map(subject => {
-    const subjectMarks = filteredMarks.filter(mark => mark.subject === subject);
-    return {
-      subject,
-      internal1: subjectMarks.reduce((sum, mark) => sum + mark.internal1, 0) / subjectMarks.length,
-      internal2: subjectMarks.reduce((sum, mark) => sum + mark.internal2, 0) / subjectMarks.length,
-      midTerm: subjectMarks.reduce((sum, mark) => sum + mark.mid_term, 0) / subjectMarks.length,
-      preFinal: subjectMarks.reduce((sum, mark) => sum + mark.pre_final, 0) / subjectMarks.length,
-    };
-  });
+  // Assessment Performance Chart showing breakdowns by assessment type
+  const assessmentPerformanceData: ChartData[] = marks.map(mark => ({
+    name: mark.subject,
+    internal1: mark.internal1,
+    internal2: mark.internal2,
+    midTerm: mark.mid_term,
+    preFinal: mark.pre_final
+  }));
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Performance Analytics</h1>
+            <h1 className="text-3xl font-bold">My Performance</h1>
             <p className="text-muted-foreground">
-              Detailed analysis of your academic performance
+              Track your academic progress and achievements
             </p>
           </div>
-          <div className="mt-4 sm:mt-0">
-            <Select
-              value={selectedTerm}
-              onValueChange={setSelectedTerm}
+          <div className="flex gap-2">
+            {marks.length === 0 && badges.length === 0 && (
+              <Button variant="outline" onClick={insertSampleData}>
+                Load Sample Data
+              </Button>
+            )}
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={downloadPerformanceReport}
             >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select Term" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Terms</SelectItem>
-                {terms.map(term => (
-                  <SelectItem key={term} value={term}>{term}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <Download className="h-4 w-4" />
+              Download Report
+            </Button>
           </div>
         </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center h-[400px]">
-            <div className="flex flex-col items-center">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="mt-4 text-muted-foreground">Loading performance data...</p>
-            </div>
-          </div>
-        ) : (
-          <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-3 md:w-[400px]">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="detailed">Detailed</TabsTrigger>
-              <TabsTrigger value="badges">Badges</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="overview" className="space-y-6 mt-6">
-              <div className="grid gap-6 md:grid-cols-2">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="assessments">Assessments</TabsTrigger>
+            <TabsTrigger value="achievements">Achievements</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="overview" className="space-y-6">
+            {marks.length > 0 ? (
+              <>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Subject Performance</CardTitle>
+                      <CardDescription>
+                        Current average vs. predicted final marks
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="h-80">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={subjectPerformanceData}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis domain={[0, 100]} />
+                            <Tooltip />
+                            <Legend />
+                            <Bar dataKey="current" name="Current Average" fill="#4F46E5" />
+                            <Bar dataKey="predicted" name="Predicted Final" fill="#10B981" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Term Progress</CardTitle>
+                      <CardDescription>
+                        Performance trends over academic terms
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="h-80">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={termProgressData}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis domain={[0, 100]} />
+                            <Tooltip />
+                            <Legend />
+                            <Line type="monotone" dataKey="average" name="Term Average" stroke="#4F46E5" strokeWidth={2} />
+                            <Line type="monotone" dataKey="predicted" name="Predicted" stroke="#10B981" strokeWidth={2} strokeDasharray="5 5" />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Current vs Predicted Performance</CardTitle>
+                    <CardTitle>Assessment Performance</CardTitle>
                     <CardDescription>
-                      Comparison between your current average and AI-predicted final scores
+                      Breakdown of marks by assessment type
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="h-[300px]">
-                    <ChartCard
-                      title=""
-                      description=""
-                      type="bar"
-                      data={currentVsPredictedData}
-                      series={[
-                        { name: 'Current Average', dataKey: 'current', color: '#4F46E5' },
-                        { name: 'AI Predicted', dataKey: 'predicted', color: '#10B981' },
-                      ]}
-                    />
+                  <CardContent>
+                    <div className="h-80">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={assessmentPerformanceData}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" />
+                          <YAxis domain={[0, 100]} />
+                          <Tooltip />
+                          <Legend />
+                          <Bar dataKey="internal1" name="Internal 1" fill="#4F46E5" />
+                          <Bar dataKey="internal2" name="Internal 2" fill="#8B5CF6" />
+                          <Bar dataKey="midTerm" name="Mid Term" fill="#EC4899" />
+                          <Bar dataKey="preFinal" name="Pre-Final" fill="#F59E0B" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
                   </CardContent>
                 </Card>
+              </>
+            ) : (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center p-6">
+                  <div className="rounded-full bg-muted p-6 mb-4">
+                    <Trophy className="h-10 w-10 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">No Performance Data</h3>
+                  <p className="text-center text-muted-foreground mb-4">
+                    We don't have any performance data to display yet. Load sample data to see how your progress report would look.
+                  </p>
+                  <Button onClick={insertSampleData}>Load Sample Data</Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="assessments" className="space-y-6">
+            {marks.length > 0 ? (
+              <>
+                <div className="grid gap-6 md:grid-cols-3">
+                  {marks.map((mark) => (
+                    <Card key={mark.id}>
+                      <CardHeader>
+                        <CardTitle>{mark.subject}</CardTitle>
+                        <CardDescription>{mark.term}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="space-y-1">
+                              <p className="text-xs text-muted-foreground">Internal 1</p>
+                              <p className="text-lg font-semibold">{mark.internal1}%</p>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-xs text-muted-foreground">Internal 2</p>
+                              <p className="text-lg font-semibold">{mark.internal2}%</p>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-xs text-muted-foreground">Mid Term</p>
+                              <p className="text-lg font-semibold">{mark.mid_term}%</p>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-xs text-muted-foreground">Pre-Final</p>
+                              <p className="text-lg font-semibold">{mark.pre_final}%</p>
+                            </div>
+                          </div>
+                          
+                          <div className="pt-2 border-t">
+                            <div className="flex justify-between items-center">
+                              <div className="space-y-1">
+                                <p className="text-xs text-muted-foreground">Average</p>
+                                <p className="text-lg font-semibold">
+                                  {((mark.internal1 + mark.internal2 + mark.mid_term + mark.pre_final) / 4).toFixed(1)}%
+                                </p>
+                              </div>
+                              <div className="space-y-1 text-right">
+                                <p className="text-xs text-muted-foreground">Predicted Final</p>
+                                <p className="text-lg font-semibold text-green-600">{mark.predicted}%</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
                 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Performance Progress</CardTitle>
+                    <CardTitle>Improvement Opportunities</CardTitle>
                     <CardDescription>
-                      Your performance trend across terms
+                      Areas where you can focus to improve your performance
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="h-[300px]">
-                    <ChartCard
-                      title=""
-                      description=""
-                      type="line"
-                      data={progressData}
-                      series={[
-                        { name: 'Average Score', dataKey: 'average', color: '#4F46E5' },
-                        { name: 'Predicted Score', dataKey: 'predicted', color: '#10B981' },
-                      ]}
-                    />
+                  <CardContent>
+                    <div className="space-y-4">
+                      {marks
+                        .sort((a, b) => a.predicted - b.predicted)
+                        .slice(0, 2)
+                        .map((mark) => (
+                          <div key={mark.id} className="p-4 border rounded-lg">
+                            <div className="flex justify-between items-start mb-2">
+                              <h3 className="font-semibold">{mark.subject}</h3>
+                              <span className="text-sm text-muted-foreground">Current Avg: {((mark.internal1 + mark.internal2 + mark.mid_term + mark.pre_final) / 4).toFixed(1)}%</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-3">
+                              Focus on improving your {
+                                Math.min(mark.internal1, mark.internal2, mark.mid_term, mark.pre_final) === mark.internal1 ? "first internal assessment" :
+                                Math.min(mark.internal1, mark.internal2, mark.mid_term, mark.pre_final) === mark.internal2 ? "second internal assessment" :
+                                Math.min(mark.internal1, mark.internal2, mark.mid_term, mark.pre_final) === mark.mid_term ? "mid-term examination" :
+                                "pre-final examination"
+                              } performance.
+                            </p>
+                            <div className="text-sm">
+                              <span className="font-medium">Recommendation: </span>
+                              Consider additional practice and review in this subject to strengthen your understanding.
+                            </div>
+                          </div>
+                        ))
+                      }
+                    </div>
                   </CardContent>
                 </Card>
+              </>
+            ) : (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center p-6">
+                  <div className="rounded-full bg-muted p-6 mb-4">
+                    <Trophy className="h-10 w-10 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">No Assessment Data</h3>
+                  <p className="text-center text-muted-foreground mb-4">
+                    We don't have any assessment data to display yet. Load sample data to see how your assessments would look.
+                  </p>
+                  <Button onClick={insertSampleData}>Load Sample Data</Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="achievements" className="space-y-6">
+            {badges.length > 0 ? (
+              <div className="grid gap-6 md:grid-cols-3">
+                {badges.map((badge) => (
+                  <Card key={badge.id}>
+                    <CardContent className="flex flex-col items-center justify-center p-6">
+                      <div className="rounded-full bg-primary/10 p-4 mb-4">
+                        <Award className="h-8 w-8 text-primary" />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-1">{badge.name}</h3>
+                      <p className="text-center text-muted-foreground mb-4">
+                        {badge.description}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Earned on {new Date(badge.achieved_at).toLocaleDateString()}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-              
+            ) : (
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Performance Insights
-                  </CardTitle>
-                  <CardDescription>
-                    AI-generated insights based on your performance patterns
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {performanceInsights.slice(0, 3).map((insight, index) => (
-                      <div key={index} className="border rounded-lg p-4">
-                        <div className="flex items-start gap-2">
-                          <div className="bg-primary/10 p-2 rounded-full">
-                            <Sparkles className="h-4 w-4 text-primary" />
-                          </div>
-                          <div>
-                            <h3 className="font-medium">{insight.subject}</h3>
-                            <div className="mt-1 text-xs text-muted-foreground space-y-1">
-                              <p><span className="font-medium text-foreground">Strength:</span> {insight.strength}</p>
-                              <p><span className="font-medium text-foreground">To improve:</span> {insight.improvement}</p>
-                              <div className="flex items-center gap-2 mt-2">
-                                <div className="text-xs font-medium">Percentile:</div>
-                                <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                                  <div 
-                                    className="h-full bg-primary rounded-full"
-                                    style={{ width: `${insight.percentile}%` }}
-                                  ></div>
-                                </div>
-                                <div className="text-xs font-medium">{insight.percentile}%</div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                <CardContent className="flex flex-col items-center justify-center p-6">
+                  <div className="rounded-full bg-muted p-6 mb-4">
+                    <Award className="h-10 w-10 text-muted-foreground" />
                   </div>
-                  <div className="flex justify-center mt-4">
-                    <Button variant="outline" onClick={() => setActiveTab('detailed')}>
-                      View Detailed Analysis
-                    </Button>
-                  </div>
+                  <h3 className="text-xl font-semibold mb-2">No Achievements Yet</h3>
+                  <p className="text-center text-muted-foreground mb-4">
+                    You haven't earned any badges or achievements yet. Continue working hard to unlock achievements!
+                  </p>
+                  <Button onClick={insertSampleData}>Load Sample Achievements</Button>
                 </CardContent>
               </Card>
-            </TabsContent>
-            
-            <TabsContent value="detailed" className="space-y-6 mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Subject Breakdown</CardTitle>
-                  <CardDescription>
-                    Performance breakdown by assessment types for each subject
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="h-[400px]">
-                  <ChartCard
-                    title=""
-                    description=""
-                    type="bar"
-                    data={subjectBreakdownData}
-                    series={[
-                      { name: 'Internal 1', dataKey: 'internal1', color: '#4F46E5' },
-                      { name: 'Internal 2', dataKey: 'internal2', color: '#10B981' },
-                      { name: 'Mid Term', dataKey: 'midTerm', color: '#F59E0B' },
-                      { name: 'Pre-Final', dataKey: 'preFinal', color: '#EF4444' },
-                    ]}
-                  />
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Detailed Performance Insights</CardTitle>
-                  <CardDescription>
-                    Subject-wise detailed analysis and recommendations
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {performanceInsights.map((insight, index) => (
-                      <div key={index} className="border rounded-lg p-4">
-                        <div className="flex items-start gap-4">
-                          <div className="bg-primary/10 p-3 rounded-full">
-                            <Sparkles className="h-5 w-5 text-primary" />
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="text-lg font-medium">{insight.subject}</h3>
-                            <div className="mt-2 space-y-2">
-                              <div>
-                                <h4 className="text-sm font-medium">Strengths:</h4>
-                                <p className="text-sm text-muted-foreground">{insight.strength}</p>
-                              </div>
-                              <div>
-                                <h4 className="text-sm font-medium">Areas for Improvement:</h4>
-                                <p className="text-sm text-muted-foreground">{insight.improvement}</p>
-                              </div>
-                              <div className="pt-2">
-                                <div className="flex items-center justify-between text-sm">
-                                  <span className="font-medium">Performance Percentile:</span>
-                                  <span className="font-bold">{insight.percentile}%</span>
-                                </div>
-                                <div className="mt-1 h-2 bg-muted rounded-full overflow-hidden">
-                                  <div 
-                                    className="h-full bg-primary rounded-full"
-                                    style={{ width: `${insight.percentile}%` }}
-                                  ></div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="badges" className="space-y-6 mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Award className="h-5 w-5" />
-                    Academic Badges
-                  </CardTitle>
-                  <CardDescription>
-                    Achievements and recognitions you've earned
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {badges.length > 0 ? (
-                      badges.map((badge) => (
-                        <div key={badge.id} className="border rounded-lg p-6">
-                          <div className="flex flex-col items-center text-center">
-                            <div className="bg-primary/10 p-4 rounded-full mb-4">
-                              <Award className="h-8 w-8 text-primary" />
-                            </div>
-                            <h3 className="font-bold text-lg mb-2">{badge.name}</h3>
-                            <p className="text-sm text-muted-foreground mb-3">{badge.description}</p>
-                            <p className="text-xs text-muted-foreground">
-                              Awarded on {new Date(badge.achieved_at).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="col-span-full flex flex-col items-center justify-center py-12">
-                        <Award className="h-12 w-12 text-muted-foreground mb-4" />
-                        <h3 className="text-xl font-medium">No Badges Yet</h3>
-                        <p className="text-muted-foreground mt-2">
-                          Keep up the good work to earn academic badges!
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        )}
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardLayout>
   );

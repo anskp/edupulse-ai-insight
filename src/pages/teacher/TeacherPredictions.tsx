@@ -1,24 +1,20 @@
 
-import { useState, useEffect } from 'react';
-import { useAuthStore } from '@/store/auth-store';
+import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import ChartCard from '@/components/dashboard/ChartCard';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from '@/components/ui/card';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs';
 import {
   Table,
   TableBody,
@@ -27,577 +23,544 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import {
-  AlertCircle,
-  BarChart2,
-  Download,
-  FileText,
-  HelpCircle,
-  Info,
-  Lightbulb,
-  TrendingUp,
-} from 'lucide-react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Input } from '@/components/ui/input';
+import { AlertCircle, BarChart2, Download, FileText, Search } from 'lucide-react';
+import { 
+  BarChart, 
+  Bar, 
+  LineChart, 
+  Line, 
+  PieChart, 
+  Pie, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer, 
+  Cell 
+} from 'recharts';
+import { ChartData } from '@/types/chart';
 
-// Sample data
-const classes = [
-  { id: 1, name: "Class 9A" },
-  { id: 2, name: "Class 9B" },
-  { id: 3, name: "Class 10A" },
-  { id: 4, name: "Class 10B" },
-  { id: 5, name: "Class 11A" },
-  { id: 6, name: "Class 11B" },
-  { id: 7, name: "Class 12A" },
-  { id: 8, name: "Class 12B" },
-];
-
-const studentsWithPredictions = [
-  {
-    id: '1',
-    name: 'Rahul Sharma',
-    internal1: 85,
-    internal2: 88,
-    attendance: '85%',
-    predicted: 92,
-    confidence: 0.89,
-    risk: 'Low',
-    riskFactors: ['None'],
-  },
-  {
-    id: '2',
-    name: 'Priya Patel',
-    internal1: 78,
-    internal2: 82,
-    attendance: '92%',
-    predicted: 83,
-    confidence: 0.85,
-    risk: 'Low',
-    riskFactors: ['None'],
-  },
-  {
-    id: '3',
-    name: 'Arjun Singh',
-    internal1: 62,
-    internal2: 58,
-    attendance: '76%',
-    predicted: 60,
-    confidence: 0.78,
-    risk: 'High',
-    riskFactors: ['Low internal marks', 'Inconsistent attendance'],
-  },
-  {
-    id: '4',
-    name: 'Neha Kumar',
-    internal1: 70,
-    internal2: 68,
-    attendance: '80%',
-    predicted: 72,
-    confidence: 0.82,
-    risk: 'Medium',
-    riskFactors: ['Declining internal trend'],
-  },
-  {
-    id: '5',
-    name: 'Sample Student',
-    internal1: 95,
-    internal2: 92,
-    attendance: '90%',
-    predicted: 96,
-    confidence: 0.95,
-    risk: 'Low',
-    riskFactors: ['None'],
-  },
-];
-
-const predictionAccuracyData = [
-  { subject: 'Mathematics', accuracy: 92 },
-  { subject: 'Science', accuracy: 89 },
-  { subject: 'History', accuracy: 84 },
-  { subject: 'English', accuracy: 91 },
-  { subject: 'Computer Science', accuracy: 95 },
-];
-
-const predictionTrendData = [
-  { month: 'Jan', accuracy: 82 },
-  { month: 'Feb', accuracy: 85 },
-  { month: 'Mar', accuracy: 87 },
-  { month: 'Apr', accuracy: 89 },
-  { month: 'May', accuracy: 91 },
-  { month: 'Jun', accuracy: 92 },
-  { month: 'Jul', accuracy: 94 },
+// Mock data
+const studentsData = [
+  { id: 1, name: 'Rahul Sharma', class: '10A', internal1: 72, internal2: 75, midTerm: 68, attendance: '82%', predicted: 70, actual: 72 },
+  { id: 2, name: 'Priya Patel', class: '10A', internal1: 85, internal2: 88, midTerm: 82, attendance: '95%', predicted: 86, actual: 88 },
+  { id: 3, name: 'Arjun Singh', class: '10A', internal1: 78, internal2: 72, midTerm: 75, attendance: '88%', predicted: 76, actual: 78 },
+  { id: 4, name: 'Neha Kumar', class: '10B', internal1: 65, internal2: 70, midTerm: 68, attendance: '78%', predicted: 66, actual: 64 },
+  { id: 5, name: 'Vikram Mehta', class: '10B', internal1: 88, internal2: 92, midTerm: 85, attendance: '92%', predicted: 88, actual: 90 },
+  { id: 6, name: 'Ananya Desai', class: '10B', internal1: 76, internal2: 78, midTerm: 75, attendance: '85%', predicted: 78, actual: 76 },
+  { id: 7, name: 'Rajiv Chauhan', class: '11A', internal1: 62, internal2: 68, midTerm: 65, attendance: '75%', predicted: 64, actual: 62 },
+  { id: 8, name: 'Sona Reddy', class: '11A', internal1: 82, internal2: 85, midTerm: 80, attendance: '90%', predicted: 83, actual: 85 },
 ];
 
 const TeacherPredictions = () => {
-  const [selectedClass, setSelectedClass] = useState<string>('');
-  const [selectedTab, setSelectedTab] = useState('students');
-  const [showHelp, setShowHelp] = useState(false);
-  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('overview');
+  const [selectedClass, setSelectedClass] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [runningPrediction, setRunningPrediction] = useState(false);
 
-  useEffect(() => {
-    if (selectedClass) {
-      // Fetch predictions for the selected class
-    }
-  }, [selectedClass]);
+  // Filter students based on search term and selected class
+  const filteredStudents = studentsData.filter(student => 
+    (selectedClass === 'all' || student.class === selectedClass) &&
+    (student.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
-  const handleRunPredictions = () => {
-    if (!selectedClass) {
-      toast({
-        title: "Error",
-        description: "Please select a class first.",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const handleRunPrediction = () => {
+    setRunningPrediction(true);
+    
     toast({
-      title: "Running predictions",
-      description: `Calculating predictions for ${classes.find(c => c.id.toString() === selectedClass)?.name}...`,
+      title: 'Running Predictions',
+      description: 'The AI model is analyzing student data to generate predictions...',
     });
     
-    setLoading(true);
-    
-    // Simulate prediction calculation delay
     setTimeout(() => {
-      setLoading(false);
+      setRunningPrediction(false);
       
       toast({
-        title: "Predictions complete",
-        description: "Student performance predictions have been updated.",
+        title: 'Predictions Complete',
+        description: 'All student predictions have been updated successfully.',
       });
     }, 3000);
   };
 
-  const handleExportReport = () => {
+  const handleDownloadReport = (reportType: string) => {
     toast({
-      title: "Exporting report",
-      description: "Preparing prediction report for export...",
+      title: 'Download Started',
+      description: `Preparing ${reportType} report for download...`,
     });
     
     setTimeout(() => {
       toast({
-        title: "Export complete",
-        description: "Prediction report has been generated and is ready for download.",
+        title: 'Download Complete',
+        description: 'Report has been downloaded successfully.',
       });
     }, 1500);
   };
 
-  const renderRiskBadge = (risk: string) => {
-    const colorMap = {
-      'Low': 'bg-green-100 text-green-800',
-      'Medium': 'bg-yellow-100 text-yellow-800',
-      'High': 'bg-red-100 text-red-800',
-    };
-    
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${colorMap[risk as keyof typeof colorMap]}`}>
-        {risk}
-      </span>
-    );
-  };
+  // Prediction distribution data
+  const predictionDistributionData: ChartData[] = [
+    { name: '90-100', count: 5 },
+    { name: '80-89', count: 12 },
+    { name: '70-79', count: 18 },
+    { name: '60-69', count: 8 },
+    { name: 'Below 60', count: 3 },
+  ];
+
+  // Prediction vs Actual data
+  const predictionVsActualData: ChartData[] = [
+    { name: '90-100', predicted: 5, actual: 6 },
+    { name: '80-89', predicted: 12, actual: 10 },
+    { name: '70-79', predicted: 18, actual: 20 },
+    { name: '60-69', predicted: 8, actual: 7 },
+    { name: 'Below 60', predicted: 3, actual: 3 },
+  ];
+
+  // Prediction accuracy by subject
+  const predictionAccuracyBySubjectData: ChartData[] = [
+    { name: 'Mathematics', accuracy: 92 },
+    { name: 'Science', accuracy: 88 },
+    { name: 'English', accuracy: 94 },
+    { name: 'History', accuracy: 85 },
+    { name: 'Computer Science', accuracy: 90 },
+  ];
+
+  // Prediction accuracy over time
+  const predictionAccuracyOverTimeData: ChartData[] = [
+    { name: 'Jan', accuracy: 85 },
+    { name: 'Feb', accuracy: 87 },
+    { name: 'Mar', accuracy: 89 },
+    { name: 'Apr', accuracy: 91 },
+    { name: 'May', accuracy: 93 },
+    { name: 'Jun', accuracy: 92 },
+  ];
+
+  // Colors for pie chart
+  const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div className="flex items-center gap-2">
+          <div>
             <h1 className="text-3xl font-bold">AI Predictions</h1>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="text-muted-foreground"
-                    onClick={() => setShowHelp(!showHelp)}
-                  >
-                    <HelpCircle className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs">
-                  <p>
-                    Our AI model predicts student performance based on internal marks, attendance, and historical data.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <p className="text-muted-foreground">
+              View and generate performance predictions for your students
+            </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Button
-              variant="outline"
-              onClick={handleExportReport}
+          <div className="flex gap-2">
+            <Button 
+              onClick={handleRunPrediction} 
+              disabled={runningPrediction}
+              className="bg-edu-secondary hover:bg-edu-secondary/90"
             >
-              <FileText className="mr-2 h-4 w-4" />
+              <BarChart2 className="mr-2 h-4 w-4" />
+              {runningPrediction ? 'Running Prediction...' : 'Run AI Prediction'}
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => handleDownloadReport('predictions')}
+              className="flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
               Export Report
             </Button>
-            <Button
-              className="bg-edu-secondary hover:bg-edu-secondary/90"
-              onClick={handleRunPredictions}
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <span className="mr-2 h-4 w-4 animate-spin">◌</span>
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <BarChart2 className="mr-2 h-4 w-4" />
-                  Run Predictions
-                </>
-              )}
-            </Button>
           </div>
         </div>
 
-        {showHelp && (
-          <Card>
-            <CardHeader className="bg-amber-50 dark:bg-amber-950/40">
-              <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-300">
-                <Lightbulb className="h-5 w-5" />
-                How Predictions Work
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-3">
-                  <div className="bg-background border rounded-lg p-4">
-                    <h3 className="font-semibold mb-2">Data Collection</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Our AI analyzes internal marks, attendance, past records, and study patterns to build a prediction model.
-                    </p>
-                  </div>
-                  <div className="bg-background border rounded-lg p-4">
-                    <h3 className="font-semibold mb-2">Prediction Algorithm</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Using XGBoost machine learning, the system calculates expected outcomes with a confidence score.
-                    </p>
-                  </div>
-                  <div className="bg-background border rounded-lg p-4">
-                    <h3 className="font-semibold mb-2">Risk Assessment</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Students at risk of underperforming are highlighted with specific factors that need attention.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex justify-end">
-                  <Button variant="ghost" onClick={() => setShowHelp(false)}>
-                    Close Guide
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        <div className="flex items-center gap-4">
-          <div className="w-full md:w-64">
-            <Select
-              onValueChange={setSelectedClass}
-              value={selectedClass}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select class" />
-              </SelectTrigger>
-              <SelectContent>
-                {classes.map((cls) => (
-                  <SelectItem key={cls.id} value={cls.id.toString()}>
-                    {cls.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search students..."
+                className="pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
+          <Select value={selectedClass} onValueChange={setSelectedClass}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select Class" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Classes</SelectItem>
+              <SelectItem value="10A">Class 10A</SelectItem>
+              <SelectItem value="10B">Class 10B</SelectItem>
+              <SelectItem value="11A">Class 11A</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-          <TabsList>
-            <TabsTrigger value="students">Student Predictions</TabsTrigger>
-            <TabsTrigger value="insights">Prediction Insights</TabsTrigger>
-            <TabsTrigger value="accuracy">Model Accuracy</TabsTrigger>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="accuracy">Accuracy</TabsTrigger>
+            <TabsTrigger value="trends">Trends</TabsTrigger>
+            <TabsTrigger value="students">Students</TabsTrigger>
           </TabsList>
-
-          <TabsContent value="students" className="space-y-6 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Student Predictions</CardTitle>
-                <CardDescription>
-                  {selectedClass 
-                    ? `Showing predictions for ${classes.find(c => c.id.toString() === selectedClass)?.name}`
-                    : "Select a class to view predictions"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Student Name</TableHead>
-                      <TableHead>Internal 1</TableHead>
-                      <TableHead>Internal 2</TableHead>
-                      <TableHead>Attendance</TableHead>
-                      <TableHead>Predicted Score</TableHead>
-                      <TableHead>Confidence</TableHead>
-                      <TableHead>Risk Level</TableHead>
-                      <TableHead>Risk Factors</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {studentsWithPredictions.map((student) => (
-                      <TableRow key={student.id}>
-                        <TableCell className="font-medium">{student.name}</TableCell>
-                        <TableCell>{student.internal1}</TableCell>
-                        <TableCell>{student.internal2}</TableCell>
-                        <TableCell>{student.attendance}</TableCell>
-                        <TableCell className="font-medium">{student.predicted}</TableCell>
-                        <TableCell>{`${Math.round(student.confidence * 100)}%`}</TableCell>
-                        <TableCell>{renderRiskBadge(student.risk)}</TableCell>
-                        <TableCell>
-                          {student.riskFactors.length > 0 && student.riskFactors[0] !== 'None' ? (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button variant="ghost" size="icon">
-                                    <AlertCircle className={`h-4 w-4 ${
-                                      student.risk === 'High' 
-                                        ? 'text-red-500' 
-                                        : student.risk === 'Medium' 
-                                          ? 'text-yellow-500' 
-                                          : 'text-green-500'
-                                    }`} />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p className="font-semibold mb-1">Risk Factors:</p>
-                                  <ul className="list-disc list-inside">
-                                    {student.riskFactors.map((factor, idx) => (
-                                      <li key={idx} className="text-sm">{factor}</li>
-                                    ))}
-                                  </ul>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          ) : (
-                            <span className="text-green-500 text-sm">None</span>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <p className="text-sm text-muted-foreground">
-                  Showing {studentsWithPredictions.length} students
-                </p>
-                <Button variant="outline" size="sm" onClick={handleExportReport}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Export Data
-                </Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="insights" className="space-y-6 mt-6">
+          
+          <TabsContent value="overview" className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>Prediction Confidence Distribution</CardTitle>
+                  <CardTitle>Prediction Distribution</CardTitle>
                   <CardDescription>
-                    Distribution of prediction confidence levels across students
+                    Distribution of students across score ranges
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[300px]">
-                    <ChartCard 
-                      title=""
-                      description=""
-                      type="bar"
-                      data={[
-                        { range: '90-100%', count: 25 },
-                        { range: '80-90%', count: 42 },
-                        { range: '70-80%', count: 18 },
-                        { range: '60-70%', count: 10 },
-                        { range: 'Below 60%', count: 5 },
-                      ]}
-                      series={[
-                        { name: 'Students', dataKey: 'count', color: '#4F46E5' },
-                      ]}
-                    />
+                  <div className="h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={predictionDistributionData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="count"
+                          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        >
+                          {predictionDistributionData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
                   </div>
                 </CardContent>
               </Card>
-
               <Card>
                 <CardHeader>
-                  <CardTitle>Prediction vs. Actual Distribution</CardTitle>
+                  <CardTitle>Predicted vs Actual</CardTitle>
                   <CardDescription>
-                    Comparison between predicted and actual scores
+                    Comparison of predicted and actual score distributions
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[300px]">
-                    <ChartCard 
-                      title=""
-                      description=""
-                      type="bar"
-                      data={[
-                        { range: '90-100', predicted: 18, actual: 15 },
-                        { range: '80-89', predicted: 32, actual: 30 },
-                        { range: '70-79', predicted: 25, actual: 28 },
-                        { range: '60-69', predicted: 15, actual: 17 },
-                        { range: 'Below 60', predicted: 10, actual: 10 },
-                      ]}
-                      series={[
-                        { name: 'Predicted', dataKey: 'predicted', color: '#4F46E5' },
-                        { name: 'Actual', dataKey: 'actual', color: '#10B981' },
-                      ]}
-                    />
+                  <div className="h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={predictionVsActualData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="predicted" name="Predicted" fill="#4F46E5" />
+                        <Bar dataKey="actual" name="Actual" fill="#10B981" />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
                 </CardContent>
               </Card>
             </div>
-
             <Card>
-              <CardHeader>
-                <CardTitle>Prediction Insights</CardTitle>
-                <CardDescription>
-                  Key insights from the prediction model
-                </CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>AI Model Performance</CardTitle>
+                  <CardDescription>
+                    Overall prediction accuracy and model metrics
+                  </CardDescription>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleDownloadReport('model metrics')}
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Export
+                </Button>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-6 md:grid-cols-3">
-                  <div className="border rounded-lg p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="bg-primary/10 p-2 rounded-full">
-                        <TrendingUp className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold mb-1">Key Predictors</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Internal assessments (60%), attendance (25%), and previous performance (15%) are the strongest predictors.
-                        </p>
-                      </div>
-                    </div>
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                  <div className="flex flex-col items-center justify-center p-4 border rounded-md">
+                    <h3 className="text-lg font-medium mb-2">Overall Accuracy</h3>
+                    <p className="text-4xl font-bold text-green-600">91.5%</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Improvement: +2.5% from last term
+                    </p>
                   </div>
-                  
-                  <div className="border rounded-lg p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="bg-primary/10 p-2 rounded-full">
-                        <AlertCircle className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold mb-1">Risk Indicators</h3>
-                        <p className="text-sm text-muted-foreground">
-                          8 students (8%) are at high risk of underperforming and require immediate intervention.
-                        </p>
-                      </div>
-                    </div>
+                  <div className="flex flex-col items-center justify-center p-4 border rounded-md">
+                    <h3 className="text-lg font-medium mb-2">Mean Error</h3>
+                    <p className="text-4xl font-bold text-amber-600">±2.8</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Improvement: -0.7 from last term
+                    </p>
                   </div>
-                  
-                  <div className="border rounded-lg p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="bg-primary/10 p-2 rounded-full">
-                        <Info className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold mb-1">Opportunity Areas</h3>
-                        <p className="text-sm text-muted-foreground">
-                          15 students show potential to improve by 10-15% with targeted assistance in specific areas.
-                        </p>
-                      </div>
-                    </div>
+                  <div className="flex flex-col items-center justify-center p-4 border rounded-md">
+                    <h3 className="text-lg font-medium mb-2">Confidence Score</h3>
+                    <p className="text-4xl font-bold text-blue-600">87%</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Improvement: +5.2% from last term
+                    </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
-
-          <TabsContent value="accuracy" className="space-y-6 mt-6">
+          
+          <TabsContent value="accuracy" className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Prediction Accuracy by Subject</CardTitle>
                   <CardDescription>
-                    Model accuracy across different subjects
+                    How accurate predictions are across different subjects
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[300px]">
-                    <ChartCard 
-                      title=""
-                      description=""
-                      type="bar"
-                      data={predictionAccuracyData}
-                      series={[
-                        { name: 'Accuracy %', dataKey: 'accuracy', color: '#4F46E5' },
-                      ]}
-                    />
+                  <div className="h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={predictionAccuracyBySubjectData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis domain={[70, 100]} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="accuracy" name="Accuracy %" fill="#4F46E5" />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
                 </CardContent>
               </Card>
-
               <Card>
                 <CardHeader>
-                  <CardTitle>Prediction Accuracy Trend</CardTitle>
+                  <CardTitle>Prediction Accuracy Over Time</CardTitle>
                   <CardDescription>
-                    Model accuracy improvement over time
+                    Trends in prediction accuracy over the months
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[300px]">
-                    <ChartCard 
-                      title=""
-                      description=""
-                      type="line"
-                      data={predictionTrendData}
-                      series={[
-                        { name: 'Accuracy %', dataKey: 'accuracy', color: '#10B981' },
-                      ]}
-                    />
+                  <div className="h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={predictionAccuracyOverTimeData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis domain={[80, 100]} />
+                        <Tooltip />
+                        <Legend />
+                        <Line type="monotone" dataKey="accuracy" name="Accuracy %" stroke="#4F46E5" strokeWidth={2} />
+                      </LineChart>
+                    </ResponsiveContainer>
                   </div>
                 </CardContent>
               </Card>
             </div>
-
             <Card>
               <CardHeader>
-                <CardTitle>Model Performance Metrics</CardTitle>
+                <CardTitle>Prediction Factors</CardTitle>
                 <CardDescription>
-                  Technical details about the prediction model
+                  Key factors influencing prediction accuracy
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-6 md:grid-cols-3">
-                  <div className="border rounded-lg p-4">
-                    <h3 className="font-semibold mb-2">Accuracy</h3>
-                    <p className="text-2xl font-bold text-primary">92.5%</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Overall prediction accuracy averaged across all subjects and classes
+                <div className="space-y-4">
+                  <div className="p-4 border rounded-lg">
+                    <h3 className="font-semibold mb-2">Attendance Impact</h3>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Higher attendance correlates strongly with more accurate predictions. Students with 90%+ attendance have prediction accuracy of 95%.
                     </p>
+                    <div className="w-full bg-muted rounded-full h-2">
+                      <div className="bg-blue-600 h-2 rounded-full" style={{width: '95%'}}></div>
+                    </div>
                   </div>
-                  
-                  <div className="border rounded-lg p-4">
-                    <h3 className="font-semibold mb-2">Mean Absolute Error</h3>
-                    <p className="text-2xl font-bold text-primary">2.8 points</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Average difference between predicted and actual scores
+                  <div className="p-4 border rounded-lg">
+                    <h3 className="font-semibold mb-2">Assessment Consistency</h3>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Students with consistent performance across internal assessments have more predictable outcomes.
                     </p>
+                    <div className="w-full bg-muted rounded-full h-2">
+                      <div className="bg-blue-600 h-2 rounded-full" style={{width: '88%'}}></div>
+                    </div>
                   </div>
-                  
-                  <div className="border rounded-lg p-4">
-                    <h3 className="font-semibold mb-2">Training Data Size</h3>
-                    <p className="text-2xl font-bold text-primary">15,240 records</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Total historical student records used to train the prediction model
+                  <div className="p-4 border rounded-lg">
+                    <h3 className="font-semibold mb-2">Mid-Term Performance</h3>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Mid-term exam performance is the strongest indicator of final results in most subjects.
                     </p>
+                    <div className="w-full bg-muted rounded-full h-2">
+                      <div className="bg-blue-600 h-2 rounded-full" style={{width: '92%'}}></div>
+                    </div>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="trends" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Long-Term Prediction Trends</CardTitle>
+                <CardDescription>
+                  Analysis of prediction accuracy across multiple terms
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={[
+                      { name: 'Term 1 2023', accuracy: 84 },
+                      { name: 'Term 2 2023', accuracy: 86 },
+                      { name: 'Term 3 2023', accuracy: 89 },
+                      { name: 'Term 1 2024', accuracy: 90 },
+                      { name: 'Term 2 2024', accuracy: 91 },
+                      { name: 'Term 3 2024', accuracy: 92 },
+                      { name: 'Term 1 2025', accuracy: 93 },
+                    ]}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis domain={[80, 100]} />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="accuracy" name="Model Accuracy %" stroke="#4F46E5" strokeWidth={2} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium">Key Insights:</h3>
+                  <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
+                    <li>Prediction accuracy has improved consistently over time.</li>
+                    <li>The AI model shows best results for Mathematics and Science subjects.</li>
+                    <li>Increased training data volume has contributed to better prediction quality.</li>
+                    <li>Model refinements in the latest term have reduced error margins by 15%.</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Prediction Success Factors</CardTitle>
+                <CardDescription>
+                  Factors that contribute to successful predictions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="space-y-4">
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <AlertCircle className="h-5 w-5 text-blue-600" />
+                        <h3 className="font-semibold">Consistent Data Collection</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Regular and consistent assessment data across all subjects directly influences prediction quality.
+                      </p>
+                    </div>
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <AlertCircle className="h-5 w-5 text-blue-600" />
+                        <h3 className="font-semibold">Assessment Timing</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Keeping internal assessments evenly spaced improves the model's ability to detect improvement trends.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <AlertCircle className="h-5 w-5 text-blue-600" />
+                        <h3 className="font-semibold">Attendance Tracking</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Daily attendance records significantly improve prediction accuracy, especially for borderline students.
+                      </p>
+                    </div>
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <AlertCircle className="h-5 w-5 text-blue-600" />
+                        <h3 className="font-semibold">Multi-Year Training</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        The AI model's extended training across multiple academic years has improved its pattern recognition.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="students">
+            <Card>
+              <CardHeader>
+                <CardTitle>Student Predictions</CardTitle>
+                <CardDescription>
+                  View and analyze predictions for individual students
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Student</TableHead>
+                        <TableHead>Class</TableHead>
+                        <TableHead>Internal 1</TableHead>
+                        <TableHead>Internal 2</TableHead>
+                        <TableHead>Mid-Term</TableHead>
+                        <TableHead>Attendance</TableHead>
+                        <TableHead>Predicted</TableHead>
+                        <TableHead>Actual</TableHead>
+                        <TableHead>Accuracy</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredStudents.length > 0 ? (
+                        filteredStudents.map((student) => (
+                          <TableRow key={student.id}>
+                            <TableCell className="font-medium">{student.name}</TableCell>
+                            <TableCell>{student.class}</TableCell>
+                            <TableCell>{student.internal1}</TableCell>
+                            <TableCell>{student.internal2}</TableCell>
+                            <TableCell>{student.midTerm}</TableCell>
+                            <TableCell>{student.attendance}</TableCell>
+                            <TableCell>{student.predicted}</TableCell>
+                            <TableCell>{student.actual || 'N/A'}</TableCell>
+                            <TableCell>
+                              {student.actual ? (
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  Math.abs(student.predicted - student.actual) <= 3
+                                    ? 'bg-green-100 text-green-800'
+                                    : Math.abs(student.predicted - student.actual) <= 6
+                                      ? 'bg-amber-100 text-amber-800'
+                                      : 'bg-red-100 text-red-800'
+                                }`}>
+                                  {Math.abs(student.predicted - student.actual) <= 3
+                                    ? 'Excellent'
+                                    : Math.abs(student.predicted - student.actual) <= 6
+                                      ? 'Good'
+                                      : 'Fair'}
+                                </span>
+                              ) : (
+                                <span className="text-muted-foreground">Pending</span>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={9} className="text-center py-4">
+                            No students match your search criteria
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
                 </div>
               </CardContent>
             </Card>
