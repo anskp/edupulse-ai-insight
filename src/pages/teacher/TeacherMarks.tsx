@@ -3,12 +3,15 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/auth-store';
 import { useToast } from '@/hooks/use-toast';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
+import { AIChatbot } from '@/components/chatbot/AIChatbot';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from '@/components/ui/card';
 import {
   Table,
@@ -43,12 +46,14 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2, Download, Filter, Pencil, Save } from 'lucide-react';
+import { Loader2, Download, Pencil, Save } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { StudentAssessmentTable } from '@/components/students/StudentAssessmentTable';
 
 // Form validation schema
 const markFormSchema = z.object({
@@ -62,22 +67,22 @@ type MarkFormValues = z.infer<typeof markFormSchema>;
 
 // Sample data
 const subjects = [
-  { id: 1, name: "Mathematics" },
-  { id: 2, name: "Science" },
-  { id: 3, name: "History" },
-  { id: 4, name: "English" },
-  { id: 5, name: "Computer Science" },
+  { id: 1, name: "Engineering Mathematics" },
+  { id: 2, name: "Data Structures & Algorithms" },
+  { id: 3, name: "Computer Organization" },
+  { id: 4, name: "Database Management" },
+  { id: 5, name: "Operating Systems" },
 ];
 
 const classes = [
-  { id: 1, name: "Class 9A" },
-  { id: 2, name: "Class 9B" },
-  { id: 3, name: "Class 10A" },
-  { id: 4, name: "Class 10B" },
-  { id: 5, name: "Class 11A" },
-  { id: 6, name: "Class 11B" },
-  { id: 7, name: "Class 12A" },
-  { id: 8, name: "Class 12B" },
+  { id: 1, name: "CSE - Semester 1" },
+  { id: 2, name: "CSE - Semester 2" },
+  { id: 3, name: "CSE - Semester 3" },
+  { id: 4, name: "CSE - Semester 4" },
+  { id: 5, name: "CSE - Semester 5" },
+  { id: 6, name: "CSE - Semester 6" },
+  { id: 7, name: "CSE - Semester 7" },
+  { id: 8, name: "CSE - Semester 8" },
 ];
 
 const terms = [
@@ -95,6 +100,15 @@ interface Student {
   midTerm: number;
   preFinal: number;
   predicted: number | null;
+}
+
+interface SubjectPerformance {
+  subject: string;
+  internal1: number;
+  internal2: number;
+  midTerm: number;
+  preFinal: number;
+  predicted: number;
 }
 
 const sampleStudents: Student[] = [
@@ -145,6 +159,33 @@ const sampleStudents: Student[] = [
   },
 ];
 
+const studentSubjectPerformance: SubjectPerformance[] = [
+  {
+    subject: "Engineering Mathematics",
+    internal1: 85,
+    internal2: 88,
+    midTerm: 82,
+    preFinal: 90,
+    predicted: 92,
+  },
+  {
+    subject: "Data Structures & Algorithms",
+    internal1: 78,
+    internal2: 82,
+    midTerm: 75,
+    preFinal: 80,
+    predicted: 83,
+  },
+  {
+    subject: "Computer Organization",
+    internal1: 72,
+    internal2: 68,
+    midTerm: 70,
+    preFinal: 75,
+    predicted: 78,
+  },
+];
+
 const TeacherMarks = () => {
   const [selectedClass, setSelectedClass] = useState<string>('');
   const [selectedSubject, setSelectedSubject] = useState<string>('');
@@ -153,6 +194,8 @@ const TeacherMarks = () => {
   const [loading, setLoading] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('students');
+  const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const { toast } = useToast();
   
   const form = useForm<MarkFormValues>({
@@ -258,12 +301,28 @@ const TeacherMarks = () => {
     }, 2000);
   };
 
+  const handleUpdateScores = (subject: string, field: string, value: number) => {
+    console.log(`Updating ${field} for ${subject} to ${value}`);
+    // In a real application, you would update the state or call an API here
+  };
+
+  const getSelectedStudentData = () => {
+    if (!selectedStudent) return null;
+    return students.find(s => s.id === selectedStudent) || null;
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Student Marks</h1>
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">Student Marks</h1>
+            <p className="text-muted-foreground">
+              View and manage student assessments
+            </p>
+          </div>
           <div className="flex gap-2">
+            <ThemeSwitcher />
             <Button variant="outline" onClick={handleExportMarks}>
               <Download className="mr-2 h-4 w-4" />
               Export Marks
@@ -282,19 +341,19 @@ const TeacherMarks = () => {
           <CardHeader>
             <CardTitle>Filter Student Marks</CardTitle>
             <CardDescription>
-              Select class, subject, and term to view student marks
+              Select semester, subject, and term to view student marks
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label>Class</Label>
+                <Label>Semester</Label>
                 <Select 
                   onValueChange={setSelectedClass} 
                   value={selectedClass}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select class" />
+                    <SelectValue placeholder="Select semester" />
                   </SelectTrigger>
                   <SelectContent>
                     {classes.map((cls) => (
@@ -355,58 +414,148 @@ const TeacherMarks = () => {
                 ? `Showing marks for ${classes.find(c => c.id.toString() === selectedClass)?.name}, 
                   ${subjects.find(s => s.id.toString() === selectedSubject)?.name}, 
                   ${terms.find(t => t.id.toString() === selectedTerm)?.name}`
-                : "Select class, subject, and term to view student marks"}
+                : "Select semester, subject, and term to view student marks"}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <div className="flex justify-center items-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : selectedClass && selectedSubject && selectedTerm ? (
-              <div className="overflow-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Student Name</TableHead>
-                      <TableHead>Internal 1</TableHead>
-                      <TableHead>Internal 2</TableHead>
-                      <TableHead>Mid Term</TableHead>
-                      <TableHead>Pre-Final</TableHead>
-                      <TableHead>Predicted</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {students.map((student) => (
-                      <TableRow key={student.id}>
-                        <TableCell className="font-medium">{student.name}</TableCell>
-                        <TableCell>{student.internal1}</TableCell>
-                        <TableCell>{student.internal2}</TableCell>
-                        <TableCell>{student.midTerm}</TableCell>
-                        <TableCell>{student.preFinal}</TableCell>
-                        <TableCell className="font-medium text-green-600">
-                          {student.predicted || 'N/A'}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            onClick={() => handleEditMarks(student)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                Please select a class, subject, and term to view student marks.
-              </div>
-            )}
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="mb-4">
+                <TabsTrigger value="students">All Students</TabsTrigger>
+                <TabsTrigger value="student-detail" disabled={!selectedStudent}>Student Detail</TabsTrigger>
+                <TabsTrigger value="assistant">AI Assistant</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="students">
+                {loading ? (
+                  <div className="flex justify-center items-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                ) : selectedClass && selectedSubject && selectedTerm ? (
+                  <div className="overflow-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Student Name</TableHead>
+                          <TableHead>Internal 1</TableHead>
+                          <TableHead>Internal 2</TableHead>
+                          <TableHead>Mid Semester</TableHead>
+                          <TableHead>Pre-Final</TableHead>
+                          <TableHead>Predicted</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {students.map((student) => (
+                          <TableRow key={student.id}>
+                            <TableCell className="font-medium">
+                              <Button 
+                                variant="link" 
+                                onClick={() => setSelectedStudent(student.id)}
+                                className="p-0 h-auto font-medium text-left"
+                              >
+                                {student.name}
+                              </Button>
+                            </TableCell>
+                            <TableCell>{student.internal1}</TableCell>
+                            <TableCell>{student.internal2}</TableCell>
+                            <TableCell>{student.midTerm}</TableCell>
+                            <TableCell>{student.preFinal}</TableCell>
+                            <TableCell className="font-medium text-green-600">
+                              {student.predicted || 'N/A'}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                onClick={() => handleEditMarks(student)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Please select a semester, subject, and term to view student marks.
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="student-detail">
+                {selectedStudent && (
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-xl font-semibold">
+                        {getSelectedStudentData()?.name} - Detailed Performance
+                      </h3>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setActiveTab('students')}
+                      >
+                        Back to All Students
+                      </Button>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <div className="bg-muted p-4 rounded-lg">
+                        <h4 className="font-medium mb-2">Current Average</h4>
+                        <p className="text-2xl font-bold">
+                          {getSelectedStudentData() && Math.round((
+                            getSelectedStudentData()!.internal1 + 
+                            getSelectedStudentData()!.internal2 + 
+                            getSelectedStudentData()!.midTerm + 
+                            getSelectedStudentData()!.preFinal) / 4)
+                          }%
+                        </p>
+                      </div>
+                      
+                      <div className="bg-muted p-4 rounded-lg">
+                        <h4 className="font-medium mb-2">Predicted Score</h4>
+                        <p className="text-2xl font-bold text-green-600">
+                          {getSelectedStudentData()?.predicted}%
+                        </p>
+                      </div>
+                      
+                      <div className="bg-muted p-4 rounded-lg">
+                        <h4 className="font-medium mb-2">Grade</h4>
+                        <p className="text-2xl font-bold">
+                          {getSelectedStudentData() && 
+                            (getSelectedStudentData()!.predicted! >= 90 ? 'A+' :
+                            getSelectedStudentData()!.predicted! >= 80 ? 'A' :
+                            getSelectedStudentData()!.predicted! >= 70 ? 'B' :
+                            getSelectedStudentData()!.predicted! >= 60 ? 'C' :
+                            getSelectedStudentData()!.predicted! >= 50 ? 'D' : 'F')
+                          }
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Subject Performance</CardTitle>
+                        <CardDescription>
+                          View performance across different subjects
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <StudentAssessmentTable 
+                          subjectPerformance={studentSubjectPerformance} 
+                          editable={true}
+                          onScoreUpdate={handleUpdateScores}
+                        />
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="assistant">
+                <AIChatbot />
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
 
@@ -454,7 +603,7 @@ const TeacherMarks = () => {
                   name="midTerm"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Mid Term</FormLabel>
+                      <FormLabel>Mid Semester</FormLabel>
                       <FormControl>
                         <Input type="number" {...field} />
                       </FormControl>
