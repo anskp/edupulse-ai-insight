@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Check, Car, Flower, Calculator, LayoutDashboard, Ship, Bot } from 'lucide-react';
 import { useAuthStore, ThemeType } from '@/store/auth-store';
@@ -19,13 +18,60 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 const themes = [
-  { id: 'default', name: 'Default', icon: <LayoutDashboard className="h-5 w-5" />, color: 'bg-purple-600', description: 'Classic educational look with standard styles' },
-  { id: 'car', name: 'Car', icon: <Car className="h-5 w-5" />, color: 'bg-blue-600', description: 'Racing-inspired theme with dynamic blues and reds' },
-  { id: 'onepiece', name: 'One Piece', icon: <Ship className="h-5 w-5" />, color: 'bg-red-600', description: 'Pirate adventure theme with vibrant reds and golds' },
-  { id: 'robotic', name: 'Robotic', icon: <Bot className="h-5 w-5" />, color: 'bg-green-600', description: 'Futuristic tech theme with neon accents and dark backgrounds' },
-  { id: 'mathematics', name: 'Mathematics', icon: <Calculator className="h-5 w-5" />, color: 'bg-green-600', description: 'Clean and precise math-inspired design with crisp greens' },
-  { id: 'moana', name: 'Moana', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 16.7a7 7 0 0 0-14 0"/><circle cx="9" cy="17" r="1"/><circle cx="15" cy="17" r="1"/><path d="M12 8a4 4 0 0 0-4 4"/><path d="M12 8a4 4 0 0 1 4 4"/><path d="M15 13a2 2 0 0 1 2 2"/><path d="M9 13a2 2 0 0 0-2 2"/></svg>, color: 'bg-cyan-600', description: 'Ocean-inspired theme with vibrant blues and teals' },
-  { id: 'flower', name: 'Flower', icon: <Flower className="h-5 w-5" />, color: 'bg-pink-600', description: 'Floral theme with soft pinks and pastels' },
+  { 
+    id: 'default', 
+    name: 'Default', 
+    icon: <LayoutDashboard className="h-5 w-5" />, 
+    color: 'bg-purple-600',
+    description: 'Professional educational look with clean design' 
+  },
+  { 
+    id: 'car', 
+    name: 'Car', 
+    icon: <Car className="h-5 w-5" />, 
+    color: 'bg-blue-600',
+    description: 'Fast and furious with neon accents and speed',
+    animation: 'animate-pulse' 
+  },
+  { 
+    id: 'onepiece', 
+    name: 'One Piece', 
+    icon: <Ship className="h-5 w-5" />, 
+    color: 'bg-red-600',
+    description: 'Adventure theme with manga-inspired elements',
+    animation: 'animate-bounce' 
+  },
+  { 
+    id: 'robotic', 
+    name: 'Robotic', 
+    icon: <Bot className="h-5 w-5" />, 
+    color: 'bg-green-600',
+    description: 'Futuristic tech theme with cyberpunk elements',
+    animation: 'animate-pulse' 
+  },
+  { 
+    id: 'mathematics', 
+    name: 'Mathematics', 
+    icon: <Calculator className="h-5 w-5" />, 
+    color: 'bg-green-600',
+    description: 'Clean and precise with mathematical patterns' 
+  },
+  { 
+    id: 'moana', 
+    name: 'Moana', 
+    icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 16.7a7 7 0 0 0-14 0"/><circle cx="9" cy="17" r="1"/><circle cx="15" cy="17" r="1"/><path d="M12 8a4 4 0 0 0-4 4"/><path d="M12 8a4 4 0 0 1 4 4"/><path d="M15 13a2 2 0 0 1 2 2"/><path d="M9 13a2 2 0 0 0-2 2"/></svg>, 
+    color: 'bg-cyan-600',
+    description: 'Tropical vibes with ocean-inspired effects',
+    animation: 'animate-wave' 
+  },
+  { 
+    id: 'flower', 
+    name: 'Flower', 
+    icon: <Flower className="h-5 w-5" />, 
+    color: 'bg-pink-600',
+    description: 'Delicate floral theme with soft animations',
+    animation: 'animate-float' 
+  }
 ];
 
 export const ThemeSwitcher = () => {
