@@ -83,6 +83,156 @@
     --sidebar-border: 217.2 32.6% 17.5%;
     --sidebar-ring: 244 75% 59%;
   }
+
+  /* Car Theme */
+  .car {
+    --background: 220 60% 98%;
+    --foreground: 220 60% 10%;
+    --card: 220 60% 100%;
+    --card-foreground: 220 60% 10%;
+    --popover: 220 60% 100%;
+    --popover-foreground: 220 60% 10%;
+    --primary: 220 100% 50%;
+    --primary-foreground: 220 60% 98%;
+    --secondary: 220 60% 80%;
+    --secondary-foreground: 220 60% 10%;
+    --muted: 220 60% 95%;
+    --muted-foreground: 220 60% 40%;
+    --accent: 220 100% 50%;
+    --accent-foreground: 220 60% 98%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 220 60% 98%;
+    --border: 220 60% 90%;
+    --input: 220 60% 90%;
+    --ring: 220 100% 50%;
+    --sidebar-background: 220 100% 50%;
+    --sidebar-foreground: 220 60% 98%;
+  }
+
+  /* One Piece Theme */
+  .onepiece {
+    --background: 0 80% 98%;
+    --foreground: 0 80% 10%;
+    --card: 0 80% 100%;
+    --card-foreground: 0 80% 10%;
+    --popover: 0 80% 100%;
+    --popover-foreground: 0 80% 10%;
+    --primary: 0 100% 50%;
+    --primary-foreground: 0 80% 98%;
+    --secondary: 30 100% 50%;
+    --secondary-foreground: 0 80% 10%;
+    --muted: 0 80% 95%;
+    --muted-foreground: 0 80% 40%;
+    --accent: 30 100% 50%;
+    --accent-foreground: 0 80% 98%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 80% 98%;
+    --border: 0 80% 90%;
+    --input: 0 80% 90%;
+    --ring: 0 100% 50%;
+    --sidebar-background: 0 100% 50%;
+    --sidebar-foreground: 0 80% 98%;
+  }
+
+  /* Robotic Theme */
+  .robotic {
+    --background: 180 10% 10%;
+    --foreground: 180 100% 80%;
+    --card: 180 10% 15%;
+    --card-foreground: 180 100% 80%;
+    --popover: 180 10% 15%;
+    --popover-foreground: 180 100% 80%;
+    --primary: 120 100% 40%;
+    --primary-foreground: 180 10% 10%;
+    --secondary: 180 10% 20%;
+    --secondary-foreground: 180 100% 80%;
+    --muted: 180 10% 20%;
+    --muted-foreground: 180 100% 60%;
+    --accent: 120 100% 40%;
+    --accent-foreground: 180 10% 10%;
+    --destructive: 0 100% 40%;
+    --destructive-foreground: 180 10% 10%;
+    --border: 180 10% 20%;
+    --input: 180 10% 20%;
+    --ring: 120 100% 40%;
+    --sidebar-background: 180 10% 15%;
+    --sidebar-foreground: 180 100% 80%;
+  }
+
+  /* Mathematics Theme */
+  .mathematics {
+    --background: 120 30% 98%;
+    --foreground: 120 30% 10%;
+    --card: 120 30% 100%;
+    --card-foreground: 120 30% 10%;
+    --popover: 120 30% 100%;
+    --popover-foreground: 120 30% 10%;
+    --primary: 120 100% 30%;
+    --primary-foreground: 120 30% 98%;
+    --secondary: 120 30% 80%;
+    --secondary-foreground: 120 30% 10%;
+    --muted: 120 30% 95%;
+    --muted-foreground: 120 30% 40%;
+    --accent: 120 100% 30%;
+    --accent-foreground: 120 30% 98%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 120 30% 98%;
+    --border: 120 30% 90%;
+    --input: 120 30% 90%;
+    --ring: 120 100% 30%;
+    --sidebar-background: 120 100% 30%;
+    --sidebar-foreground: 120 30% 98%;
+  }
+
+  /* Moana Theme */
+  .moana {
+    --background: 195 100% 95%;
+    --foreground: 195 100% 10%;
+    --card: 195 100% 100%;
+    --card-foreground: 195 100% 10%;
+    --popover: 195 100% 100%;
+    --popover-foreground: 195 100% 10%;
+    --primary: 195 100% 50%;
+    --primary-foreground: 195 100% 98%;
+    --secondary: 170 100% 50%;
+    --secondary-foreground: 195 100% 10%;
+    --muted: 195 100% 90%;
+    --muted-foreground: 195 100% 40%;
+    --accent: 170 100% 50%;
+    --accent-foreground: 195 100% 98%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 195 100% 98%;
+    --border: 195 100% 85%;
+    --input: 195 100% 85%;
+    --ring: 195 100% 50%;
+    --sidebar-background: 195 100% 50%;
+    --sidebar-foreground: 195 100% 98%;
+  }
+
+  /* Flower Theme */
+  .flower {
+    --background: 330 100% 98%;
+    --foreground: 330 100% 10%;
+    --card: 330 100% 100%;
+    --card-foreground: 330 100% 10%;
+    --popover: 330 100% 100%;
+    --popover-foreground: 330 100% 10%;
+    --primary: 330 100% 60%;
+    --primary-foreground: 330 100% 98%;
+    --secondary: 300 100% 60%;
+    --secondary-foreground: 330 100% 10%;
+    --muted: 330 100% 95%;
+    --muted-foreground: 330 100% 40%;
+    --accent: 300 100% 60%;
+    --accent-foreground: 330 100% 98%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 330 100% 98%;
+    --border: 330 100% 90%;
+    --input: 330 100% 90%;
+    --ring: 330 100% 60%;
+    --sidebar-background: 330 100% 60%;
+    --sidebar-foreground: 330 100% 98%;
+  }
 }
 
 @layer base {

@@ -19,14 +19,14 @@ interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
-  role: string | null;
+  role: UserRole | null;
   theme: ThemeType;
   darkMode: boolean;
   setTheme: (theme: ThemeType) => void;
   toggleDarkMode: () => void;
   login: (user: User, token: string) => void;
   logout: () => void;
-  updateUser?: (user: Partial<User>) => void;
+  updateUser: (user: Partial<User>) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -38,7 +38,14 @@ export const useAuthStore = create<AuthState>()(
       role: null,
       theme: 'default',
       darkMode: false,
-      setTheme: (theme) => set({ theme }),
+      setTheme: (theme) => {
+        // Remove all theme classes and add the new one
+        document.documentElement.classList.remove('default', 'car', 'onepiece', 'robotic', 'mathematics', 'moana', 'flower');
+        if (theme !== 'default') {
+          document.documentElement.classList.add(theme);
+        }
+        set({ theme });
+      },
       toggleDarkMode: () => set((state) => {
         const newDarkMode = !state.darkMode;
         document.documentElement.classList.toggle('dark', newDarkMode);

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Check, Car, Flower, Calculator, LayoutDashboard, Ship, Bot } from 'lucide-react';
 import { useAuthStore, ThemeType } from '@/store/auth-store';
@@ -75,10 +76,24 @@ const themes = [
 ];
 
 export const ThemeSwitcher = () => {
-  const { theme, setTheme } = useAuthStore();
+  const { theme, setTheme, darkMode, toggleDarkMode } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
   const [themeTransitioning, setThemeTransitioning] = useState(false);
   const { toast } = useToast();
+
+  // Apply theme on component mount
+  useEffect(() => {
+    // Remove all theme classes
+    document.documentElement.classList.remove('default', 'car', 'onepiece', 'robotic', 'mathematics', 'moana', 'flower');
+    
+    // Apply current theme
+    if (theme !== 'default') {
+      document.documentElement.classList.add(theme);
+    }
+    
+    // Apply dark mode if enabled
+    document.documentElement.classList.toggle('dark', darkMode);
+  }, []);
 
   const handleThemeChange = (themeId: string) => {
     setThemeTransitioning(true);
@@ -184,6 +199,16 @@ export const ThemeSwitcher = () => {
         </div>
         <div className="mt-2 text-xs text-muted-foreground px-1">
           Theme applies visual styling to various parts of the application
+        </div>
+        <div className="mt-2 pt-2 border-t">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full"
+            onClick={toggleDarkMode}
+          >
+            {darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          </Button>
         </div>
       </PopoverContent>
     </Popover>
