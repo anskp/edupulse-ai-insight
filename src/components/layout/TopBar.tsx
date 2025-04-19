@@ -4,6 +4,7 @@ import { useAuthStore } from '@/store/auth-store';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,9 +50,7 @@ const TopBar = () => {
         </div>
 
         <div className="flex items-center space-x-3">
-          <Button variant="outline" size="icon" onClick={toggleTheme}>
-            {isDark ? <Sun size={18} /> : <Moon size={18} />}
-          </Button>
+          <ThemeSwitcher />
 
           <Button variant="outline" size="icon" className="relative">
             <Bell size={18} />

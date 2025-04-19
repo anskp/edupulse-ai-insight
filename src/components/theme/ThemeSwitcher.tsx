@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Check, Car, Flower, Calculator, LayoutDashboard } from 'lucide-react';
+import { Check, Car, Flower, Calculator, LayoutDashboard, Ship, Bot } from 'lucide-react';
 import { useAuthStore, ThemeType } from '@/store/auth-store';
 import {
   Select,
@@ -20,11 +20,11 @@ import { useToast } from '@/hooks/use-toast';
 
 const themes = [
   { id: 'default', name: 'Default', icon: <LayoutDashboard className="h-5 w-5" />, color: 'bg-purple-600', description: 'Classic educational look with standard styles' },
-  { id: 'car', name: 'Car', icon: <Car className="h-5 w-5" />, color: 'bg-blue-600', description: 'Racing-inspired theme with sleek blues' },
-  { id: 'onepiece', name: 'One Piece', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l3 3"/></svg>, color: 'bg-red-600', description: 'Pirate adventure theme with bold reds and yellows' },
-  { id: 'robotic', name: 'Robotic', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>, color: 'bg-gray-600', description: 'Futuristic tech theme with neon accents' },
-  { id: 'mathematics', name: 'Mathematics', icon: <Calculator className="h-5 w-5" />, color: 'bg-green-600', description: 'Clean and precise math-inspired design' },
-  { id: 'moana', name: 'Moana', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 16.7a7 7 0 0 0-14 0"/><circle cx="9" cy="17" r="1"/><circle cx="15" cy="17" r="1"/><path d="M12 8a4 4 0 0 0-4 4"/><path d="M12 8a4 4 0 0 1 4 4"/><path d="M15 13a2 2 0 0 1 2 2"/><path d="M9 13a2 2 0 0 0-2 2"/></svg>, color: 'bg-cyan-600', description: 'Ocean-inspired theme with vibrant blues' },
+  { id: 'car', name: 'Car', icon: <Car className="h-5 w-5" />, color: 'bg-blue-600', description: 'Racing-inspired theme with dynamic blues and reds' },
+  { id: 'onepiece', name: 'One Piece', icon: <Ship className="h-5 w-5" />, color: 'bg-red-600', description: 'Pirate adventure theme with vibrant reds and golds' },
+  { id: 'robotic', name: 'Robotic', icon: <Bot className="h-5 w-5" />, color: 'bg-green-600', description: 'Futuristic tech theme with neon accents and dark backgrounds' },
+  { id: 'mathematics', name: 'Mathematics', icon: <Calculator className="h-5 w-5" />, color: 'bg-green-600', description: 'Clean and precise math-inspired design with crisp greens' },
+  { id: 'moana', name: 'Moana', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 16.7a7 7 0 0 0-14 0"/><circle cx="9" cy="17" r="1"/><circle cx="15" cy="17" r="1"/><path d="M12 8a4 4 0 0 0-4 4"/><path d="M12 8a4 4 0 0 1 4 4"/><path d="M15 13a2 2 0 0 1 2 2"/><path d="M9 13a2 2 0 0 0-2 2"/></svg>, color: 'bg-cyan-600', description: 'Ocean-inspired theme with vibrant blues and teals' },
   { id: 'flower', name: 'Flower', icon: <Flower className="h-5 w-5" />, color: 'bg-pink-600', description: 'Floral theme with soft pinks and pastels' },
 ];
 
@@ -48,7 +48,27 @@ export const ThemeSwitcher = () => {
     
     // Apply animation during theme transition
     document.documentElement.classList.add('theme-transition');
+    
+    // Add dramatic theme change effect
+    const overlay = document.createElement('div');
+    overlay.className = 'fixed inset-0 bg-black z-50 pointer-events-none';
+    overlay.style.opacity = '0';
+    document.body.appendChild(overlay);
+    
+    // Fade to black
     setTimeout(() => {
+      overlay.style.transition = 'opacity 400ms ease';
+      overlay.style.opacity = '1';
+    }, 50);
+    
+    // Fade back from black
+    setTimeout(() => {
+      overlay.style.opacity = '0';
+    }, 500);
+    
+    // Remove overlay and transition class
+    setTimeout(() => {
+      document.body.removeChild(overlay);
       document.documentElement.classList.remove('theme-transition');
       setThemeTransitioning(false);
     }, 1000);

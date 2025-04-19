@@ -16,6 +16,7 @@ import {
   Menu,
   FileText,
   Cog,
+  Calendar,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -23,7 +24,8 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ className }: SidebarProps) => {
-  const { role, logout } = useAuthStore();
+  const { user, logout } = useAuthStore();
+  const role = user?.role || 'student';
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -55,6 +57,7 @@ const Sidebar = ({ className }: SidebarProps) => {
     { to: '/admin', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
     { to: '/admin/teachers', label: 'Teachers', icon: <Users size={20} /> },
     { to: '/admin/students', label: 'Students', icon: <GraduationCap size={20} /> },
+    { to: '/admin/attendance', label: 'Attendance', icon: <Calendar size={20} /> },
     { to: '/admin/reports', label: 'Reports', icon: <FileText size={20} /> },
     { to: '/admin/settings', label: 'Settings', icon: <Cog size={20} /> },
   ];
@@ -63,6 +66,7 @@ const Sidebar = ({ className }: SidebarProps) => {
     { to: '/teacher', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
     { to: '/teacher/students', label: 'Students', icon: <GraduationCap size={20} /> },
     { to: '/teacher/marks', label: 'Marks', icon: <BookOpen size={20} /> },
+    { to: '/teacher/attendance', label: 'Attendance', icon: <Calendar size={20} /> },
     { to: '/teacher/predictions', label: 'Predictions', icon: <BarChart2 size={20} /> },
     { to: '/teacher/settings', label: 'Settings', icon: <Settings size={20} /> },
   ];
@@ -70,6 +74,7 @@ const Sidebar = ({ className }: SidebarProps) => {
   const studentLinks = [
     { to: '/student', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
     { to: '/student/marks', label: 'My Marks', icon: <BookOpen size={20} /> },
+    { to: '/student/attendance', label: 'My Attendance', icon: <Calendar size={20} /> },
     { to: '/student/performance', label: 'Performance', icon: <BarChart2 size={20} /> },
     { to: '/student/settings', label: 'Settings', icon: <Settings size={20} /> },
   ];

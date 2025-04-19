@@ -20,7 +20,8 @@ interface Message {
 }
 
 export const AIChatbot = () => {
-  const { role } = useAuthStore();
+  const { user } = useAuthStore();
+  const role = user?.role || 'student';
   const [messages, setMessages] = useState<Message[]>([
     { 
       role: 'assistant', 
@@ -38,6 +39,16 @@ export const AIChatbot = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    // Update greeting message when role changes
+    setMessages([
+      { 
+        role: 'assistant', 
+        content: `Hello! I'm your EduPulse AI assistant. How can I help you with your ${role === 'student' ? 'studies' : role === 'teacher' ? 'teaching' : 'administrative tasks'} today?` 
+      }
+    ]);
+  }, [role]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

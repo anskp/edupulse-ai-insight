@@ -5,7 +5,8 @@ import { useAuthStore } from '@/store/auth-store';
 import { Shield } from 'lucide-react';
 
 const Unauthorized = () => {
-  const { role } = useAuthStore();
+  const { user } = useAuthStore();
+  const role = user?.role || 'guest';
 
   const getRedirectPath = () => {
     if (role === 'admin') return '/admin';

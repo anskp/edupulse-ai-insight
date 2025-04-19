@@ -34,6 +34,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { GraduationCap, Info, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
 
 // Form validation schemas
 const loginSchema = z.object({
@@ -94,6 +95,8 @@ const Login = () => {
       
       // For now, let's simulate login based on email domain or predefined credentials
       let userRole: 'admin' | 'teacher' | 'student' | null = null;
+      let department = 'Computer Science';
+      let semester = 4;
       
       // Check demo credentials
       if (data.email === demoCredentials.admin.email && data.password === demoCredentials.admin.password) {
@@ -123,6 +126,9 @@ const Login = () => {
             : 'Student User',
         email: data.email,
         role: userRole,
+        department,
+        semester,
+        avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${userRole === 'admin' ? 'AU' : userRole === 'teacher' ? 'TU' : 'SU'}`
       };
       
       // Simulate a token
@@ -166,6 +172,10 @@ const Login = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-indigo-50 via-white to-sky-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+      <div className="absolute top-4 right-4">
+        <ThemeSwitcher />
+      </div>
+      
       <div className="container flex flex-col items-center justify-center flex-1 max-w-md px-4 py-8">
         <div className="flex items-center mb-6 text-2xl font-bold">
           <GraduationCap className="h-8 w-8 mr-2 text-primary" />
