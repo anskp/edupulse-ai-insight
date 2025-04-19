@@ -18,13 +18,13 @@ import { AttendanceRecord } from '@/types/chart';
 
 // Sample data
 const sampleRecords: AttendanceRecord[] = [
-  { id: '1', date: '2025-04-15', course_code: 'CS-101', status: 'present', reason: null },
-  { id: '2', date: '2025-04-14', course_code: 'MTH-201', status: 'present', reason: null },
-  { id: '3', date: '2025-04-13', course_code: 'PHY-101', status: 'absent', reason: 'Medical leave' },
-  { id: '4', date: '2025-04-12', course_code: 'CS-102', status: 'late', reason: 'Traffic delay' },
-  { id: '5', date: '2025-04-11', course_code: 'ENG-101', status: 'present', reason: null },
-  { id: '6', date: '2025-04-10', course_code: 'CS-101', status: 'present', reason: null },
-  { id: '7', date: '2025-04-09', course_code: 'MTH-201', status: 'excused', reason: 'College event' },
+  { id: '1', date: '2025-04-15', course_code: 'CS-101', status: 'present', reason: null, student_id: '1', semester: 1, academic_year: '2024-25' },
+  { id: '2', date: '2025-04-14', course_code: 'MTH-201', status: 'present', reason: null, student_id: '1', semester: 1, academic_year: '2024-25' },
+  { id: '3', date: '2025-04-13', course_code: 'PHY-101', status: 'absent', reason: 'Medical leave', student_id: '1', semester: 1, academic_year: '2024-25' },
+  { id: '4', date: '2025-04-12', course_code: 'CS-102', status: 'late', reason: 'Traffic delay', student_id: '1', semester: 1, academic_year: '2024-25' },
+  { id: '5', date: '2025-04-11', course_code: 'ENG-101', status: 'present', reason: null, student_id: '1', semester: 1, academic_year: '2024-25' },
+  { id: '6', date: '2025-04-10', course_code: 'CS-101', status: 'present', reason: null, student_id: '1', semester: 1, academic_year: '2024-25' },
+  { id: '7', date: '2025-04-09', course_code: 'MTH-201', status: 'excused', reason: 'College event', student_id: '1', semester: 1, academic_year: '2024-25' },
 ];
 
 const sampleSummary = {
@@ -35,7 +35,9 @@ const sampleSummary = {
   absent_count: 5,
   late_count: 7,
   excused_count: 0,
-  attendance_percentage: 87
+  attendance_percentage: 87,
+  student_id: '1',
+  academic_year: '2024-25'
 };
 
 const StudentAttendance = () => {
