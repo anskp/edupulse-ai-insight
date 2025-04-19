@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/auth-store';
 import { useToast } from '@/hooks/use-toast';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
-import { AIChatbot } from '@/components/chatbot/AIChatbot';
+import { GeminiChat } from '@/components/chatbot/GeminiChat';
 import {
   Card,
   CardContent,
@@ -74,15 +74,23 @@ const subjects = [
   { id: 5, name: "Operating Systems" },
 ];
 
-const classes = [
-  { id: 1, name: "CSE - Semester 1" },
-  { id: 2, name: "CSE - Semester 2" },
-  { id: 3, name: "CSE - Semester 3" },
-  { id: 4, name: "CSE - Semester 4" },
-  { id: 5, name: "CSE - Semester 5" },
-  { id: 6, name: "CSE - Semester 6" },
-  { id: 7, name: "CSE - Semester 7" },
-  { id: 8, name: "CSE - Semester 8" },
+const departments = [
+  { id: 1, name: "Computer Science" },
+  { id: 2, name: "Electronics" },
+  { id: 3, name: "Mechanical" },
+  { id: 4, name: "Civil" },
+  { id: 5, name: "Electrical" },
+];
+
+const semesters = [
+  { id: 1, name: "1st Semester" },
+  { id: 2, name: "2nd Semester" },
+  { id: 3, name: "3rd Semester" },
+  { id: 4, name: "4th Semester" },
+  { id: 5, name: "5th Semester" },
+  { id: 6, name: "6th Semester" },
+  { id: 7, name: "7th Semester" },
+  { id: 8, name: "8th Semester" },
 ];
 
 const terms = [
@@ -187,9 +195,10 @@ const studentSubjectPerformance: SubjectPerformance[] = [
 ];
 
 const TeacherMarks = () => {
-  const [selectedClass, setSelectedClass] = useState<string>('');
+  const [selectedSemester, setSelectedSemester] = useState<string>('');
   const [selectedSubject, setSelectedSubject] = useState<string>('');
   const [selectedTerm, setSelectedTerm] = useState<string>('');
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('');
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
@@ -197,6 +206,7 @@ const TeacherMarks = () => {
   const [activeTab, setActiveTab] = useState('students');
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const { toast } = useToast();
+  const { theme } = useAuthStore();
   
   const form = useForm<MarkFormValues>({
     resolver: zodResolver(markFormSchema),
@@ -209,10 +219,10 @@ const TeacherMarks = () => {
   });
 
   useEffect(() => {
-    if (selectedClass && selectedSubject && selectedTerm) {
+    if (selectedSemester && selectedSubject && selectedTerm) {
       fetchStudentMarks();
     }
-  }, [selectedClass, selectedSubject, selectedTerm]);
+  }, [selectedSemester, selectedSubject, selectedTerm, selectedDepartment]);
 
   const fetchStudentMarks = () => {
     setLoading(true);
@@ -341,24 +351,43 @@ const TeacherMarks = () => {
           <CardHeader>
             <CardTitle>Filter Student Marks</CardTitle>
             <CardDescription>
-              Select semester, subject, and term to view student marks
+              Select department, semester, subject, and term to view student marks
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="space-y-2">
+                <Label>Department</Label>
+                <Select 
+                  onValueChange={setSelectedDepartment} 
+                  value={selectedDepartment}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departments.map((dept) => (
+                      <SelectItem key={dept.id} value={dept.id.toString()}>
+                        {dept.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
               <div className="space-y-2">
                 <Label>Semester</Label>
                 <Select 
-                  onValueChange={setSelectedClass} 
-                  value={selectedClass}
+                  onValueChange={setSelectedSemester} 
+                  value={selectedSemester}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select semester" />
                   </SelectTrigger>
                   <SelectContent>
-                    {classes.map((cls) => (
-                      <SelectItem key={cls.id} value={cls.id.toString()}>
-                        {cls.name}
+                    {semesters.map((sem) => (
+                      <SelectItem key={sem.id} value={sem.id.toString()}>
+                        {sem.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -410,11 +439,12 @@ const TeacherMarks = () => {
           <CardHeader>
             <CardTitle>Student Marks</CardTitle>
             <CardDescription>
-              {selectedClass && selectedSubject && selectedTerm 
-                ? `Showing marks for ${classes.find(c => c.id.toString() === selectedClass)?.name}, 
+              {selectedSemester && selectedSubject && selectedTerm 
+                ? `Showing marks for ${departments.find(d => d.id.toString() === selectedDepartment)?.name || "All Departments"},
+                  ${semesters.find(s => s.id.toString() === selectedSemester)?.name}, 
                   ${subjects.find(s => s.id.toString() === selectedSubject)?.name}, 
                   ${terms.find(t => t.id.toString() === selectedTerm)?.name}`
-                : "Select semester, subject, and term to view student marks"}
+                : "Select department, semester, subject, and term to view student marks"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -430,7 +460,7 @@ const TeacherMarks = () => {
                   <div className="flex justify-center items-center py-8">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                   </div>
-                ) : selectedClass && selectedSubject && selectedTerm ? (
+                ) : selectedSemester && selectedSubject && selectedTerm ? (
                   <div className="overflow-auto">
                     <Table>
                       <TableHeader>
@@ -479,7 +509,7 @@ const TeacherMarks = () => {
                   </div>
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">
-                    Please select a semester, subject, and term to view student marks.
+                    Please select department, semester, subject, and term to view student marks.
                   </div>
                 )}
               </TabsContent>
@@ -553,7 +583,9 @@ const TeacherMarks = () => {
               </TabsContent>
               
               <TabsContent value="assistant">
-                <AIChatbot />
+                <div className="h-[400px]">
+                  <GeminiChat context="academics" />
+                </div>
               </TabsContent>
             </Tabs>
           </CardContent>

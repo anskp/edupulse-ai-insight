@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useAuthStore } from '@/store/auth-store';
 import { useToast } from '@/hooks/use-toast';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
 import {
   Card,
   CardContent,
@@ -69,8 +70,9 @@ import { insertSampleStudentData } from '@/lib/supabase-helpers';
 const studentFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Invalid email address" }),
-  grade: z.string().min(1, { message: "Grade is required" }),
+  semester: z.string().min(1, { message: "Semester is required" }),
   section: z.string().min(1, { message: "Section is required" }),
+  department: z.string().min(1, { message: "Department is required" }),
   rollNumber: z.string().optional(),
   parentName: z.string().optional(),
   parentContact: z.string().optional(),
@@ -87,8 +89,9 @@ const mockStudents = [
     name: 'Rahul Sharma',
     email: 'rahul.sharma@student.edu',
     rollNumber: 'A001',
-    grade: '10th',
+    semester: '1st',
     section: 'A',
+    department: 'Computer Science',
     attendance: '85%',
     parentName: 'Rajesh Sharma',
     parentContact: '+91 9876543210',
@@ -101,8 +104,9 @@ const mockStudents = [
     name: 'Priya Patel',
     email: 'priya.patel@student.edu',
     rollNumber: 'A002',
-    grade: '10th',
+    semester: '1st',
     section: 'A',
+    department: 'Computer Science',
     attendance: '92%',
     parentName: 'Vikram Patel',
     parentContact: '+91 9876543211',
@@ -115,8 +119,9 @@ const mockStudents = [
     name: 'Arjun Singh',
     email: 'arjun.singh@student.edu',
     rollNumber: 'B001',
-    grade: '9th',
+    semester: '3rd',
     section: 'B',
+    department: 'Electronics',
     attendance: '76%',
     parentName: 'Harpreet Singh',
     parentContact: '+91 9876543212',
@@ -129,8 +134,9 @@ const mockStudents = [
     name: 'Neha Kumar',
     email: 'neha.kumar@student.edu',
     rollNumber: 'C001',
-    grade: '11th',
+    semester: '5th',
     section: 'A',
+    department: 'Mechanical',
     attendance: '88%',
     parentName: 'Ramesh Kumar',
     parentContact: '+91 9876543213',
@@ -143,8 +149,9 @@ const mockStudents = [
     name: 'Sample Student',
     email: 'sample.student@edupulse.com',
     rollNumber: 'D001',
-    grade: '10th',
+    semester: '7th',
     section: 'B',
+    department: 'Civil',
     attendance: '90%',
     parentName: 'Demo Parent',
     parentContact: '+91 9876543214',
@@ -154,23 +161,48 @@ const mockStudents = [
   },
 ];
 
+// Departments for engineering college
+const departments = [
+  { id: 1, name: "Computer Science" },
+  { id: 2, name: "Electronics" },
+  { id: 3, name: "Mechanical" },
+  { id: 4, name: "Civil" },
+  { id: 5, name: "Electrical" },
+];
+
+// Semesters for engineering college
+const semesters = [
+  { id: 1, name: "1st" },
+  { id: 2, name: "2nd" },
+  { id: 3, name: "3rd" },
+  { id: 4, name: "4th" },
+  { id: 5, name: "5th" },
+  { id: 6, name: "6th" },
+  { id: 7, name: "7th" },
+  { id: 8, name: "8th" },
+];
+
 const AdminStudents = () => {
   const [students, setStudents] = useState(mockStudents);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSemester, setSelectedSemester] = useState('');
+  const [selectedDepartment, setSelectedDepartment] = useState('');
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [currentStudent, setCurrentStudent] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { theme } = useAuthStore();
 
   const form = useForm<StudentFormValues>({
     resolver: zodResolver(studentFormSchema),
     defaultValues: {
       name: '',
       email: '',
-      grade: '',
+      semester: '',
       section: '',
+      department: '',
       rollNumber: '',
       parentName: '',
       parentContact: '',
@@ -179,22 +211,29 @@ const AdminStudents = () => {
     },
   });
 
-  const filteredStudents = students.filter(student =>
-    student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.rollNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.grade.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.section.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredStudents = students.filter(student => {
+    const matchesSearch = 
+      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.rollNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.semester.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.section.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesSemester = selectedSemester ? student.semester === selectedSemester : true;
+    const matchesDepartment = selectedDepartment ? student.department === selectedDepartment : true;
+    
+    return matchesSearch && matchesSemester && matchesDepartment;
+  });
 
   const handleAddStudent = (data: StudentFormValues) => {
     const newStudent = {
       id: (students.length + 1).toString(),
       name: data.name,
       email: data.email,
-      rollNumber: data.rollNumber || `${data.grade[0]}${data.section}${Math.floor(Math.random() * 1000)}`,
-      grade: data.grade,
+      rollNumber: data.rollNumber || `${data.semester[0]}${data.section}${Math.floor(Math.random() * 1000)}`,
+      semester: data.semester,
       section: data.section,
+      department: data.department,
       attendance: '100%',
       parentName: data.parentName || '',
       parentContact: data.parentContact || '',
@@ -220,8 +259,9 @@ const AdminStudents = () => {
       form.reset({
         name: student.name,
         email: student.email,
-        grade: student.grade,
+        semester: student.semester,
         section: student.section,
+        department: student.department,
         rollNumber: student.rollNumber,
         parentName: student.parentName,
         parentContact: student.parentContact,
@@ -241,8 +281,9 @@ const AdminStudents = () => {
             ...student,
             name: data.name,
             email: data.email,
-            grade: data.grade,
+            semester: data.semester,
             section: data.section,
+            department: data.department,
             rollNumber: data.rollNumber || student.rollNumber,
             parentName: data.parentName || student.parentName,
             parentContact: data.parentContact || student.parentContact,
@@ -314,8 +355,9 @@ const AdminStudents = () => {
         name: 'Sample Student',
         email: 'sample.student@edupulse.com',
         rollNumber: `S${Math.floor(Math.random() * 1000)}`,
-        grade: '10th',
+        semester: '3rd',
         section: 'B',
+        department: 'Computer Science',
         attendance: '100%',
         parentName: 'Demo Parent',
         parentContact: '+91 9876543299',
@@ -363,6 +405,7 @@ const AdminStudents = () => {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <ThemeSwitcher />
             <Button variant="outline" onClick={handleExportStudents}>
               <Download className="mr-2 h-4 w-4" />
               Export
@@ -391,13 +434,49 @@ const AdminStudents = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button 
-            className="bg-edu-secondary hover:bg-edu-secondary/90"
-            onClick={handleRunPrediction}
-          >
-            <BarChart2 className="mr-2 h-4 w-4" />
-            Run AI Prediction
-          </Button>
+          <div className="flex gap-2">
+            <Select 
+              value={selectedSemester} 
+              onValueChange={setSelectedSemester}
+            >
+              <SelectTrigger className="w-[130px]">
+                <SelectValue placeholder="Semester" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Semesters</SelectItem>
+                {semesters.map(semester => (
+                  <SelectItem key={semester.id} value={semester.name}>
+                    {semester.name} Semester
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            <Select 
+              value={selectedDepartment} 
+              onValueChange={setSelectedDepartment}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Department" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Departments</SelectItem>
+                {departments.map(dept => (
+                  <SelectItem key={dept.id} value={dept.name}>
+                    {dept.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            <Button 
+              className="bg-edu-secondary hover:bg-edu-secondary/90"
+              onClick={handleRunPrediction}
+            >
+              <BarChart2 className="mr-2 h-4 w-4" />
+              Run AI Prediction
+            </Button>
+          </div>
         </div>
 
         <Card>
@@ -415,8 +494,9 @@ const AdminStudents = () => {
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Roll No.</TableHead>
-                    <TableHead>Grade</TableHead>
+                    <TableHead>Semester</TableHead>
                     <TableHead>Section</TableHead>
+                    <TableHead>Department</TableHead>
                     <TableHead>Attendance</TableHead>
                     <TableHead>Join Date</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -429,8 +509,9 @@ const AdminStudents = () => {
                         <TableCell className="font-medium">{student.name}</TableCell>
                         <TableCell>{student.email}</TableCell>
                         <TableCell>{student.rollNumber}</TableCell>
-                        <TableCell>{student.grade}</TableCell>
+                        <TableCell>{student.semester}</TableCell>
                         <TableCell>{student.section}</TableCell>
+                        <TableCell>{student.department}</TableCell>
                         <TableCell>{student.attendance}</TableCell>
                         <TableCell>{new Date(student.joinDate).toLocaleDateString()}</TableCell>
                         <TableCell className="text-right">
@@ -463,7 +544,7 @@ const AdminStudents = () => {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-4">
+                      <TableCell colSpan={9} className="text-center py-4">
                         No students found matching your search.
                       </TableCell>
                     </TableRow>
@@ -518,24 +599,25 @@ const AdminStudents = () => {
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="grade"
+                  name="department"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Grade *</FormLabel>
+                      <FormLabel>Department *</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select grade" />
+                            <SelectValue placeholder="Select department" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="9th">9th</SelectItem>
-                          <SelectItem value="10th">10th</SelectItem>
-                          <SelectItem value="11th">11th</SelectItem>
-                          <SelectItem value="12th">12th</SelectItem>
+                          {departments.map(dept => (
+                            <SelectItem key={dept.id} value={dept.name}>
+                              {dept.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -545,23 +627,25 @@ const AdminStudents = () => {
 
                 <FormField
                   control={form.control}
-                  name="section"
+                  name="semester"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Section *</FormLabel>
+                      <FormLabel>Semester *</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select section" />
+                            <SelectValue placeholder="Select semester" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="A">A</SelectItem>
-                          <SelectItem value="B">B</SelectItem>
-                          <SelectItem value="C">C</SelectItem>
+                          {semesters.map(semester => (
+                            <SelectItem key={semester.id} value={semester.name}>
+                              {semester.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -569,6 +653,32 @@ const AdminStudents = () => {
                   )}
                 />
               </div>
+
+              <FormField
+                control={form.control}
+                name="section"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Section *</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select section" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="A">A</SelectItem>
+                        <SelectItem value="B">B</SelectItem>
+                        <SelectItem value="C">C</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
@@ -701,50 +811,53 @@ const AdminStudents = () => {
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="grade"
+                  name="department"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Grade *</FormLabel>
+                      <FormLabel>Department *</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select grade" />
+                            <SelectValue placeholder="Select department" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="9th">9th</SelectItem>
-                          <SelectItem value="10th">10th</SelectItem>
-                          <SelectItem value="11th">11th</SelectItem>
-                          <SelectItem value="12th">12th</SelectItem>
+                          {departments.map(dept => (
+                            <SelectItem key={dept.id} value={dept.name}>
+                              {dept.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
+                
                 <FormField
                   control={form.control}
-                  name="section"
+                  name="semester"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Section *</FormLabel>
+                      <FormLabel>Semester *</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select section" />
+                            <SelectValue placeholder="Select semester" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="A">A</SelectItem>
-                          <SelectItem value="B">B</SelectItem>
-                          <SelectItem value="C">C</SelectItem>
+                          {semesters.map(semester => (
+                            <SelectItem key={semester.id} value={semester.name}>
+                              {semester.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -752,6 +865,32 @@ const AdminStudents = () => {
                   )}
                 />
               </div>
+
+              <FormField
+                control={form.control}
+                name="section"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Section *</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select section" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="A">A</SelectItem>
+                        <SelectItem value="B">B</SelectItem>
+                        <SelectItem value="C">C</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}

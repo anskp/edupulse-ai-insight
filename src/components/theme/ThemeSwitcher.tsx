@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Check, Car, Flower, Calculator, LayoutDashboard } from 'lucide-react';
 import { useAuthStore, ThemeType } from '@/store/auth-store';
 import {
@@ -16,25 +16,58 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 const themes = [
-  { id: 'default', name: 'Default', icon: <LayoutDashboard className="h-5 w-5" />, color: 'bg-purple-600' },
-  { id: 'car', name: 'Car', icon: <Car className="h-5 w-5" />, color: 'bg-blue-600' },
-  { id: 'onepiece', name: 'One Piece', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l3 3"/></svg>, color: 'bg-red-600' },
-  { id: 'robotic', name: 'Robotic', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>, color: 'bg-gray-600' },
-  { id: 'mathematics', name: 'Mathematics', icon: <Calculator className="h-5 w-5" />, color: 'bg-green-600' },
-  { id: 'moana', name: 'Moana', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 16.7a7 7 0 0 0-14 0"/><circle cx="9" cy="17" r="1"/><circle cx="15" cy="17" r="1"/><path d="M12 8a4 4 0 0 0-4 4"/><path d="M12 8a4 4 0 0 1 4 4"/><path d="M15 13a2 2 0 0 1 2 2"/><path d="M9 13a2 2 0 0 0-2 2"/></svg>, color: 'bg-cyan-600' },
-  { id: 'flower', name: 'Flower', icon: <Flower className="h-5 w-5" />, color: 'bg-pink-600' },
+  { id: 'default', name: 'Default', icon: <LayoutDashboard className="h-5 w-5" />, color: 'bg-purple-600', description: 'Classic educational look with standard styles' },
+  { id: 'car', name: 'Car', icon: <Car className="h-5 w-5" />, color: 'bg-blue-600', description: 'Racing-inspired theme with sleek blues' },
+  { id: 'onepiece', name: 'One Piece', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l3 3"/></svg>, color: 'bg-red-600', description: 'Pirate adventure theme with bold reds and yellows' },
+  { id: 'robotic', name: 'Robotic', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>, color: 'bg-gray-600', description: 'Futuristic tech theme with neon accents' },
+  { id: 'mathematics', name: 'Mathematics', icon: <Calculator className="h-5 w-5" />, color: 'bg-green-600', description: 'Clean and precise math-inspired design' },
+  { id: 'moana', name: 'Moana', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 16.7a7 7 0 0 0-14 0"/><circle cx="9" cy="17" r="1"/><circle cx="15" cy="17" r="1"/><path d="M12 8a4 4 0 0 0-4 4"/><path d="M12 8a4 4 0 0 1 4 4"/><path d="M15 13a2 2 0 0 1 2 2"/><path d="M9 13a2 2 0 0 0-2 2"/></svg>, color: 'bg-cyan-600', description: 'Ocean-inspired theme with vibrant blues' },
+  { id: 'flower', name: 'Flower', icon: <Flower className="h-5 w-5" />, color: 'bg-pink-600', description: 'Floral theme with soft pinks and pastels' },
 ];
 
 export const ThemeSwitcher = () => {
   const { theme, setTheme } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
+  const [themeTransitioning, setThemeTransitioning] = useState(false);
+  const { toast } = useToast();
 
   const handleThemeChange = (themeId: string) => {
+    setThemeTransitioning(true);
     setTheme(themeId as ThemeType);
     setIsOpen(false);
+    
+    // Show theme-specific toast
+    const selectedTheme = themes.find(t => t.id === themeId);
+    toast({
+      title: `${selectedTheme?.name} Theme Applied`,
+      description: selectedTheme?.description,
+    });
+    
+    // Apply animation during theme transition
+    document.documentElement.classList.add('theme-transition');
+    setTimeout(() => {
+      document.documentElement.classList.remove('theme-transition');
+      setThemeTransitioning(false);
+    }, 1000);
   };
+
+  // Apply CSS for theme transition
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .theme-transition * {
+        transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease !important;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   const currentTheme = themes.find(t => t.id === theme) || themes[0];
 
@@ -43,10 +76,16 @@ export const ThemeSwitcher = () => {
       <PopoverTrigger asChild>
         <Button 
           variant="outline" 
-          className="flex items-center gap-2 px-3"
+          className={cn(
+            "flex items-center gap-2 px-3 transition-all duration-300",
+            themeTransitioning && "animate-pulse"
+          )}
           aria-label="Select a theme"
         >
-          <div className={cn("h-5 w-5 rounded-full flex items-center justify-center", currentTheme.color)}>
+          <div className={cn(
+            "h-5 w-5 rounded-full flex items-center justify-center transition-all duration-300",
+            currentTheme.color
+          )}>
             {currentTheme.icon}
           </div>
           <span className="hidden md:inline">{currentTheme.name}</span>
@@ -59,12 +98,15 @@ export const ThemeSwitcher = () => {
               key={themeOption.id}
               variant="outline"
               className={cn(
-                "justify-start gap-2",
+                "justify-start gap-2 transition-all hover:scale-105",
                 theme === themeOption.id && "border-2 border-primary"
               )}
               onClick={() => handleThemeChange(themeOption.id)}
             >
-              <div className={cn("h-5 w-5 rounded-full flex items-center justify-center", themeOption.color)}>
+              <div className={cn(
+                "h-5 w-5 rounded-full flex items-center justify-center",
+                themeOption.color
+              )}>
                 {themeOption.icon}
               </div>
               <span>{themeOption.name}</span>
@@ -73,6 +115,9 @@ export const ThemeSwitcher = () => {
               )}
             </Button>
           ))}
+        </div>
+        <div className="mt-2 text-xs text-muted-foreground px-1">
+          Theme applies visual styling to various parts of the application
         </div>
       </PopoverContent>
     </Popover>
