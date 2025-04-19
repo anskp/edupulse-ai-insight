@@ -102,4 +102,3 @@ export const RoleBasedAttendance = () => {
     </Card>
   );
 };
-

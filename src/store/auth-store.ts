@@ -3,12 +3,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export type ThemeType = 'default' | 'car' | 'onepiece' | 'robotic' | 'mathematics' | 'moana' | 'flower';
+export type UserRole = 'admin' | 'teacher' | 'student';
 
 interface User {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'teacher' | 'student';
+  role: UserRole;
   department?: string;
   semester?: number;
   avatar?: string;
@@ -25,6 +26,7 @@ interface AuthState {
   toggleDarkMode: () => void;
   login: (user: User, token: string) => void;
   logout: () => void;
+  updateUser?: (user: Partial<User>) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -56,10 +58,12 @@ export const useAuthStore = create<AuthState>()(
           role: null,
         });
       },
+      updateUser: (userData) => set((state) => ({
+        user: state.user ? { ...state.user, ...userData } : null,
+      })),
     }),
     {
       name: 'auth-storage',
     }
   )
 );
-

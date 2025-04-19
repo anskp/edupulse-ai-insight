@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuthStore } from '@/store/auth-store';
 import { useToast } from '@/hooks/use-toast';
@@ -443,7 +442,7 @@ const AdminStudents = () => {
                 <SelectValue placeholder="Semester" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Semesters</SelectItem>
+                <SelectItem value="all-semesters">All Semesters</SelectItem>
                 {semesters.map(semester => (
                   <SelectItem key={semester.id} value={semester.name}>
                     {semester.name} Semester
@@ -460,7 +459,7 @@ const AdminStudents = () => {
                 <SelectValue placeholder="Department" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Departments</SelectItem>
+                <SelectItem value="all-departments">All Departments</SelectItem>
                 {departments.map(dept => (
                   <SelectItem key={dept.id} value={dept.name}>
                     {dept.name}
