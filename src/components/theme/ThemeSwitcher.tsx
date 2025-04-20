@@ -24,8 +24,7 @@ const themes = [
     name: 'Default', 
     icon: <LayoutDashboard className="h-5 w-5" />, 
     color: 'bg-purple-600',
-    description: 'Professional educational look with clean design',
-    background: '/lovable-uploads/d6659df6-fe7e-4fe9-b266-e75ea2f24d84.png'
+    description: 'Professional educational look with clean design' 
   },
   { 
     id: 'car', 
@@ -33,8 +32,7 @@ const themes = [
     icon: <Car className="h-5 w-5" />, 
     color: 'bg-blue-600',
     description: 'Fast and furious with neon accents and speed',
-    animation: 'animate-pulse',
-    background: '/lovable-uploads/10fe126f-f1ae-47e6-8037-182fe3d23809.png'
+    animation: 'animate-pulse' 
   },
   { 
     id: 'onepiece', 
@@ -42,8 +40,7 @@ const themes = [
     icon: <Ship className="h-5 w-5" />, 
     color: 'bg-red-600',
     description: 'Adventure theme with manga-inspired elements',
-    animation: 'animate-bounce',
-    background: '/lovable-uploads/f011c8fb-7078-4c9e-a461-60767c5c8fef.png'
+    animation: 'animate-bounce' 
   },
   { 
     id: 'robotic', 
@@ -51,16 +48,14 @@ const themes = [
     icon: <Bot className="h-5 w-5" />, 
     color: 'bg-green-600',
     description: 'Futuristic tech theme with cyberpunk elements',
-    animation: 'animate-pulse',
-    background: '/lovable-uploads/35aaf52b-3d10-4d27-b35e-4e6d9411b0ac.png'
+    animation: 'animate-pulse' 
   },
   { 
     id: 'mathematics', 
     name: 'Mathematics', 
     icon: <Calculator className="h-5 w-5" />, 
     color: 'bg-green-600',
-    description: 'Clean and precise with mathematical patterns',
-    background: '/background-math.png'
+    description: 'Clean and precise with mathematical patterns' 
   },
   { 
     id: 'moana', 
@@ -68,8 +63,7 @@ const themes = [
     icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 16.7a7 7 0 0 0-14 0"/><circle cx="9" cy="17" r="1"/><circle cx="15" cy="17" r="1"/><path d="M12 8a4 4 0 0 0-4 4"/><path d="M12 8a4 4 0 0 1 4 4"/><path d="M15 13a2 2 0 0 1 2 2"/><path d="M9 13a2 2 0 0 0-2 2"/></svg>, 
     color: 'bg-cyan-600',
     description: 'Tropical vibes with ocean-inspired effects',
-    animation: 'animate-wave',
-    background: '/background-moana.png'
+    animation: 'animate-wave' 
   },
   { 
     id: 'flower', 
@@ -77,8 +71,7 @@ const themes = [
     icon: <Flower className="h-5 w-5" />, 
     color: 'bg-pink-600',
     description: 'Delicate floral theme with soft animations',
-    animation: 'animate-float',
-    background: '/background-flower.png'
+    animation: 'animate-float' 
   }
 ];
 
@@ -101,15 +94,6 @@ export const ThemeSwitcher = () => {
     // Apply dark mode if enabled
     document.documentElement.classList.toggle('dark', darkMode);
   }, []);
-
-  // Set 3D background based on theme
-  useEffect(() => {
-    const currentTheme = themes.find(t => t.id === theme);
-    if (currentTheme?.background) {
-      const root = document.documentElement;
-      root.style.setProperty('--theme-background-image', `url(${currentTheme.background})`);
-    }
-  }, [theme]);
 
   const handleThemeChange = (themeId: string) => {
     setThemeTransitioning(true);
