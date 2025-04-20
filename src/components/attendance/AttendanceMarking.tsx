@@ -54,38 +54,38 @@ const sampleStudents: Student[] = [
 ];
 
 const semesters = [
-  { id: 1, name: "Semester 1" },
-  { id: 2, name: "Semester 2" },
-  { id: 3, name: "Semester 3" },
-  { id: 4, name: "Semester 4" },
-  { id: 5, name: "Semester 5" },
-  { id: 6, name: "Semester 6" },
-  { id: 7, name: "Semester 7" },
-  { id: 8, name: "Semester 8" },
+  { id: "1", name: "Semester 1" },
+  { id: "2", name: "Semester 2" },
+  { id: "3", name: "Semester 3" },
+  { id: "4", name: "Semester 4" },
+  { id: "5", name: "Semester 5" },
+  { id: "6", name: "Semester 6" },
+  { id: "7", name: "Semester 7" },
+  { id: "8", name: "Semester 8" },
 ];
 
 const subjects = [
-  { id: 1, name: "Engineering Mathematics" },
-  { id: 2, name: "Computer Science Fundamentals" },
-  { id: 3, name: "Data Structures & Algorithms" },
-  { id: 4, name: "Digital Electronics" },
-  { id: 5, name: "Programming in C++" },
+  { id: "1", name: "Engineering Mathematics" },
+  { id: "2", name: "Computer Science Fundamentals" },
+  { id: "3", name: "Data Structures & Algorithms" },
+  { id: "4", name: "Digital Electronics" },
+  { id: "5", name: "Programming in C++" },
 ];
 
 const periods = [
-  { id: 1, name: "Period 1 (9:00 - 10:00)" },
-  { id: 2, name: "Period 2 (10:00 - 11:00)" },
-  { id: 3, name: "Period 3 (11:15 - 12:15)" },
-  { id: 4, name: "Period 4 (12:15 - 1:15)" },
-  { id: 5, name: "Period 5 (2:00 - 3:00)" },
-  { id: 6, name: "Period 6 (3:00 - 4:00)" },
+  { id: "1", name: "Period 1 (9:00 - 10:00)" },
+  { id: "2", name: "Period 2 (10:00 - 11:00)" },
+  { id: "3", name: "Period 3 (11:15 - 12:15)" },
+  { id: "4", name: "Period 4 (12:15 - 1:15)" },
+  { id: "5", name: "Period 5 (2:00 - 3:00)" },
+  { id: "6", name: "Period 6 (3:00 - 4:00)" },
 ];
 
 export const AttendanceMarking = ({ readOnly = false, studentsList }: AttendanceMarkingProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [selectedSemester, setSelectedSemester] = useState<string>("");
-  const [selectedSubject, setSelectedSubject] = useState<string>("");
-  const [selectedPeriod, setSelectedPeriod] = useState<string>("");
+  const [selectedSemester, setSelectedSemester] = useState<string>("1");
+  const [selectedSubject, setSelectedSubject] = useState<string>("1");
+  const [selectedPeriod, setSelectedPeriod] = useState<string>("1");
   const [attendanceData, setAttendanceData] = useState<AttendanceStatus[]>([]);
   const [students, setStudents] = useState<Student[]>(studentsList || sampleStudents);
   const { toast } = useToast();
@@ -134,7 +134,7 @@ export const AttendanceMarking = ({ readOnly = false, studentsList }: Attendance
     // Here we would normally save to database
     toast({
       title: "Attendance saved",
-      description: `Attendance for ${selectedSubject} on ${selectedDate.toLocaleDateString()} has been saved.`
+      description: `Attendance for ${subjects.find(s => s.id === selectedSubject)?.name} on ${selectedDate.toLocaleDateString()} has been saved for Semester ${selectedSemester}.`
     });
   };
 
@@ -183,7 +183,7 @@ export const AttendanceMarking = ({ readOnly = false, studentsList }: Attendance
               </SelectTrigger>
               <SelectContent>
                 {semesters.map((semester) => (
-                  <SelectItem key={semester.id} value={semester.id.toString()}>
+                  <SelectItem key={semester.id} value={semester.id}>
                     {semester.name}
                   </SelectItem>
                 ))}
@@ -203,7 +203,7 @@ export const AttendanceMarking = ({ readOnly = false, studentsList }: Attendance
               </SelectTrigger>
               <SelectContent>
                 {subjects.map((subject) => (
-                  <SelectItem key={subject.id} value={subject.id.toString()}>
+                  <SelectItem key={subject.id} value={subject.id}>
                     {subject.name}
                   </SelectItem>
                 ))}
@@ -223,7 +223,7 @@ export const AttendanceMarking = ({ readOnly = false, studentsList }: Attendance
               </SelectTrigger>
               <SelectContent>
                 {periods.map((period) => (
-                  <SelectItem key={period.id} value={period.id.toString()}>
+                  <SelectItem key={period.id} value={period.id}>
                     {period.name}
                   </SelectItem>
                 ))}

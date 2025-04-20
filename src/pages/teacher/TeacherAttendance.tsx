@@ -11,8 +11,10 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AttendanceMarking } from '@/components/attendance/AttendanceMarking';
+import { RoleBasedAttendance } from '@/components/attendance/RoleBasedAttendance';
 import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
 import { useToast } from '@/hooks/use-toast';
+import { Download } from 'lucide-react';
 
 const TeacherAttendance = () => {
   const [activeTab, setActiveTab] = useState('mark');
@@ -45,6 +47,7 @@ const TeacherAttendance = () => {
           <div className="flex gap-2">
             <ThemeSwitcher />
             <Button variant="outline" onClick={handleExportAttendance}>
+              <Download className="h-4 w-4 mr-2" />
               Export Attendance
             </Button>
           </div>
@@ -57,7 +60,7 @@ const TeacherAttendance = () => {
           </TabsList>
           
           <TabsContent value="mark" className="mt-4">
-            <AttendanceMarking />
+            <RoleBasedAttendance />
           </TabsContent>
           
           <TabsContent value="history" className="mt-4">
@@ -69,9 +72,7 @@ const TeacherAttendance = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-center py-8 text-muted-foreground">
-                  Select a class, subject, and date to view attendance history.
-                </p>
+                <AttendanceMarking readOnly={true} />
               </CardContent>
             </Card>
           </TabsContent>

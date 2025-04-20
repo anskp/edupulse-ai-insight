@@ -17,6 +17,7 @@ import AdminTeachers from "./pages/admin/AdminTeachers";
 import AdminStudents from "./pages/admin/AdminStudents";
 import AdminReports from "./pages/admin/AdminReports";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminAttendance from "./pages/admin/AdminAttendance";
 
 // Teacher routes
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
@@ -25,12 +26,14 @@ import TeacherStudentDetail from "./pages/teacher/TeacherStudentDetail";
 import TeacherMarks from "./pages/teacher/TeacherMarks";
 import TeacherPredictions from "./pages/teacher/TeacherPredictions";
 import TeacherSettings from "./pages/teacher/TeacherSettings";
+import TeacherAttendance from "./pages/teacher/TeacherAttendance";
 
 // Student routes
 import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentMarks from "./pages/student/StudentMarks";
 import StudentPerformance from "./pages/student/StudentPerformance";
 import StudentSettings from "./pages/student/StudentSettings";
+import StudentAttendance from "./pages/student/StudentAttendance";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +73,14 @@ const App = () => (
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <AdminStudents />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/attendance" 
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminAttendance />
               </ProtectedRoute>
             } 
           />
@@ -124,6 +135,14 @@ const App = () => (
             } 
           />
           <Route 
+            path="/teacher/attendance" 
+            element={
+              <ProtectedRoute allowedRoles={['teacher']}>
+                <TeacherAttendance />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/teacher/predictions" 
             element={
               <ProtectedRoute allowedRoles={['teacher']}>
@@ -154,6 +173,14 @@ const App = () => (
             element={
               <ProtectedRoute allowedRoles={['student']}>
                 <StudentMarks />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/student/attendance" 
+            element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentAttendance />
               </ProtectedRoute>
             } 
           />

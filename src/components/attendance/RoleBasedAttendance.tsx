@@ -26,6 +26,8 @@ export const RoleBasedAttendance = () => {
   const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedSubject, setSelectedSubject] = useState<string>('MATH101');
+  const [selectedSemester, setSelectedSemester] = useState<string>("1");
+  const [selectedDepartment, setSelectedDepartment] = useState<string>("CS");
   const [students, setStudents] = useState<Student[]>([
     { id: '1', name: 'Rahul Sharma', rollNumber: '4PA22CS019', attendance: null },
     { id: '2', name: 'Priya Patel', rollNumber: '4PA22CS020', attendance: null },
@@ -41,11 +43,38 @@ export const RoleBasedAttendance = () => {
     { id: 'CSE101', name: 'Computer Science I' },
   ];
 
+  const semesters = [
+    { id: '1', name: 'Semester 1' },
+    { id: '2', name: 'Semester 2' },
+    { id: '3', name: 'Semester 3' },
+    { id: '4', name: 'Semester 4' },
+    { id: '5', name: 'Semester 5' },
+    { id: '6', name: 'Semester 6' },
+    { id: '7', name: 'Semester 7' },
+    { id: '8', name: 'Semester 8' },
+  ];
+
+  const departments = [
+    { id: 'CS', name: 'Computer Science' },
+    { id: 'EE', name: 'Electrical Engineering' },
+    { id: 'ME', name: 'Mechanical Engineering' },
+    { id: 'CE', name: 'Civil Engineering' },
+  ];
+
   const markAttendance = async (studentId: string, status: 'present' | 'absent' | 'late') => {
     if (!selectedSubject) {
       toast({
         title: "Error",
         description: "Please select a subject first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!selectedSemester) {
+      toast({
+        title: "Error",
+        description: "Please select a semester first",
         variant: "destructive",
       });
       return;
@@ -81,10 +110,29 @@ export const RoleBasedAttendance = () => {
     // In a real app, this would save to the database
     toast({
       title: "Attendance Saved",
-      description: `Attendance for ${selectedSubject} on ${selectedDate?.toLocaleDateString()} has been saved for all students`,
+      description: `Attendance for ${selectedSubject} on ${selectedDate?.toLocaleDateString()} has been saved for all students in Semester ${selectedSemester}`,
     });
   };
 
+  const handleSemesterChange = (value: string) => {
+    setSelectedSemester(value);
+    // In a real app, this would fetch students for the selected semester
+    toast({
+      title: "Semester Changed",
+      description: `Now showing students from Semester ${value}`,
+    });
+  };
+
+  const handleDepartmentChange = (value: string) => {
+    setSelectedDepartment(value);
+    // In a real app, this would fetch students for the selected department
+    toast({
+      title: "Department Changed",
+      description: `Now showing students from ${departments.find(d => d.id === value)?.name} department`,
+    });
+  };
+
+  const isAdmin = user?.role === 'admin';
   const isTeacher = user?.role === 'teacher';
   const isStudent = user?.role === 'student';
 
@@ -99,7 +147,11 @@ export const RoleBasedAttendance = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{isTeacher ? 'Mark Student Attendance' : 'My Attendance'}</CardTitle>
+        <CardTitle>
+          {isAdmin ? 'Monitor Student Attendance' : 
+           isTeacher ? 'Mark Student Attendance' : 
+           'My Attendance'}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -112,6 +164,38 @@ export const RoleBasedAttendance = () => {
             />
           </div>
           <div className="space-y-4">
+            {(isAdmin || isTeacher) && (
+              <>
+                <Select value={selectedSemester} onValueChange={handleSemesterChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select semester" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {semesters.map((semester) => (
+                      <SelectItem key={semester.id} value={semester.id}>
+                        {semester.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {isAdmin && (
+                  <Select value={selectedDepartment} onValueChange={handleDepartmentChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {departments.map((dept) => (
+                        <SelectItem key={dept.id} value={dept.id}>
+                          {dept.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </>
+            )}
+
             <Select value={selectedSubject} onValueChange={setSelectedSubject}>
               <SelectTrigger>
                 <SelectValue placeholder="Select subject" />
@@ -125,7 +209,7 @@ export const RoleBasedAttendance = () => {
               </SelectContent>
             </Select>
 
-            {isTeacher && (
+            {(isAdmin || isTeacher) && (
               <Button onClick={saveAllAttendance} className="w-full">
                 Save All Attendance
               </Button>
@@ -133,7 +217,7 @@ export const RoleBasedAttendance = () => {
           </div>
         </div>
 
-        {isTeacher ? (
+        {(isAdmin || isTeacher) ? (
           <div className="overflow-auto">
             <Table>
               <TableHeader>
