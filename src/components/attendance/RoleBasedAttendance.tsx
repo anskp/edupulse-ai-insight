@@ -25,7 +25,7 @@ export const RoleBasedAttendance = () => {
   const { user } = useAuthStore();
   const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [selectedSubject, setSelectedSubject] = useState<string>('MATH101');
+  const [selectedSubject, setSelectedSubject] = useState<string>("MATH101");
   const [selectedSemester, setSelectedSemester] = useState<string>("1");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("CS");
   const [students, setStudents] = useState<Student[]>([

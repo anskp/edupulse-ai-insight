@@ -197,7 +197,7 @@ const StudentAttendance = () => {
                 <SelectValue placeholder="All Subjects" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Subjects</SelectItem>
+                <SelectItem value="all">All Subjects</SelectItem>
                 {subjectsList.map((subject) => (
                   <SelectItem key={subject.id} value={subject.id}>
                     {subject.name}
@@ -242,7 +242,7 @@ const StudentAttendance = () => {
                           {pieChartData.map((entry, index) => (
                             <Cell 
                               key={`cell-${index}`} 
-                              fill={themeStyles.chartColors[index] || entry.color} 
+                              fill={themeStyles.chartColors?.[index] || entry.color} 
                             />
                           ))}
                         </Pie>
@@ -321,7 +321,7 @@ const StudentAttendance = () => {
                 <CardTitle>Attendance Records</CardTitle>
                 <CardDescription>
                   View your detailed attendance records
-                  {selectedSubject && ` for ${subjectsList.find(s => s.id === selectedSubject)?.name}`}
+                  {selectedSubject && selectedSubject !== 'all' && ` for ${subjectsList.find(s => s.id === selectedSubject)?.name}`}
                 </CardDescription>
               </CardHeader>
               <CardContent>
