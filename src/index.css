@@ -43,6 +43,8 @@
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 244 75% 69%;
     --sidebar-ring: 244 75% 59%;
+
+    --theme-background-image: none;
   }
 
   .dark {
@@ -84,7 +86,7 @@
     --sidebar-ring: 244 75% 59%;
   }
 
-  /* Car Theme */
+  /* Car Theme - Light */
   .car {
     --background: 220 60% 98%;
     --foreground: 220 60% 10%;
@@ -109,7 +111,32 @@
     --sidebar-foreground: 220 60% 98%;
   }
 
-  /* One Piece Theme */
+  /* Car Theme - Dark */
+  .car.dark {
+    --background: 220 60% 5%;
+    --foreground: 220 60% 95%;
+    --card: 220 60% 10%;
+    --card-foreground: 220 60% 95%;
+    --popover: 220 60% 10%;
+    --popover-foreground: 220 60% 95%;
+    --primary: 220 100% 50%;
+    --primary-foreground: 220 60% 5%;
+    --secondary: 220 60% 30%;
+    --secondary-foreground: 220 60% 95%;
+    --muted: 220 60% 15%;
+    --muted-foreground: 220 60% 70%;
+    --accent: 220 100% 50%;
+    --accent-foreground: 220 60% 5%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 220 60% 5%;
+    --border: 220 60% 20%;
+    --input: 220 60% 20%;
+    --ring: 220 100% 50%;
+    --sidebar-background: 220 60% 15%;
+    --sidebar-foreground: 220 60% 95%;
+  }
+
+  /* One Piece Theme - Light */
   .onepiece {
     --background: 0 80% 98%;
     --foreground: 0 80% 10%;
@@ -134,8 +161,58 @@
     --sidebar-foreground: 0 80% 98%;
   }
 
-  /* Robotic Theme */
+  /* One Piece Theme - Dark */
+  .onepiece.dark {
+    --background: 0 80% 10%;
+    --foreground: 0 80% 95%;
+    --card: 0 80% 15%;
+    --card-foreground: 0 80% 95%;
+    --popover: 0 80% 15%;
+    --popover-foreground: 0 80% 95%;
+    --primary: 0 100% 50%;
+    --primary-foreground: 0 80% 10%;
+    --secondary: 30 100% 50%;
+    --secondary-foreground: 0 80% 95%;
+    --muted: 0 80% 20%;
+    --muted-foreground: 0 80% 70%;
+    --accent: 30 100% 50%;
+    --accent-foreground: 0 80% 10%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 80% 10%;
+    --border: 0 80% 30%;
+    --input: 0 80% 30%;
+    --ring: 0 100% 50%;
+    --sidebar-background: 0 80% 15%;
+    --sidebar-foreground: 0 80% 95%;
+  }
+
+  /* Robotic Theme - Light */
   .robotic {
+    --background: 180 10% 95%;
+    --foreground: 180 10% 10%;
+    --card: 180 10% 100%;
+    --card-foreground: 180 10% 10%;
+    --popover: 180 10% 100%;
+    --popover-foreground: 180 10% 10%;
+    --primary: 120 100% 40%;
+    --primary-foreground: 180 10% 95%;
+    --secondary: 180 10% 80%;
+    --secondary-foreground: 180 10% 10%;
+    --muted: 180 10% 90%;
+    --muted-foreground: 180 10% 30%;
+    --accent: 120 100% 40%;
+    --accent-foreground: 180 10% 95%;
+    --destructive: 0 100% 40%;
+    --destructive-foreground: 180 10% 95%;
+    --border: 180 10% 85%;
+    --input: 180 10% 85%;
+    --ring: 120 100% 40%;
+    --sidebar-background: 120 100% 40%;
+    --sidebar-foreground: 180 10% 95%;
+  }
+
+  /* Robotic Theme - Dark */
+  .robotic.dark {
     --background: 180 10% 10%;
     --foreground: 180 100% 80%;
     --card: 180 10% 15%;
@@ -159,7 +236,7 @@
     --sidebar-foreground: 180 100% 80%;
   }
 
-  /* Mathematics Theme */
+  /* Mathematics Theme - Light */
   .mathematics {
     --background: 120 30% 98%;
     --foreground: 120 30% 10%;
@@ -184,7 +261,32 @@
     --sidebar-foreground: 120 30% 98%;
   }
 
-  /* Moana Theme */
+  /* Mathematics Theme - Dark */
+  .mathematics.dark {
+    --background: 120 30% 10%;
+    --foreground: 120 30% 95%;
+    --card: 120 30% 15%;
+    --card-foreground: 120 30% 95%;
+    --popover: 120 30% 15%;
+    --popover-foreground: 120 30% 95%;
+    --primary: 120 100% 30%;
+    --primary-foreground: 120 30% 10%;
+    --secondary: 120 30% 30%;
+    --secondary-foreground: 120 30% 95%;
+    --muted: 120 30% 20%;
+    --muted-foreground: 120 30% 70%;
+    --accent: 120 100% 30%;
+    --accent-foreground: 120 30% 10%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 120 30% 10%;
+    --border: 120 30% 25%;
+    --input: 120 30% 25%;
+    --ring: 120 100% 30%;
+    --sidebar-background: 120 30% 15%;
+    --sidebar-foreground: 120 30% 95%;
+  }
+
+  /* Moana Theme - Light */
   .moana {
     --background: 195 100% 95%;
     --foreground: 195 100% 10%;
@@ -209,7 +311,32 @@
     --sidebar-foreground: 195 100% 98%;
   }
 
-  /* Flower Theme */
+  /* Moana Theme - Dark */
+  .moana.dark {
+    --background: 195 100% 10%;
+    --foreground: 195 100% 95%;
+    --card: 195 100% 15%;
+    --card-foreground: 195 100% 95%;
+    --popover: 195 100% 15%;
+    --popover-foreground: 195 100% 95%;
+    --primary: 195 100% 50%;
+    --primary-foreground: 195 100% 10%;
+    --secondary: 170 100% 50%;
+    --secondary-foreground: 195 100% 95%;
+    --muted: 195 100% 20%;
+    --muted-foreground: 195 100% 70%;
+    --accent: 170 100% 50%;
+    --accent-foreground: 195 100% 10%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 195 100% 10%;
+    --border: 195 100% 25%;
+    --input: 195 100% 25%;
+    --ring: 195 100% 50%;
+    --sidebar-background: 195 100% 20%;
+    --sidebar-foreground: 195 100% 95%;
+  }
+
+  /* Flower Theme - Light */
   .flower {
     --background: 330 100% 98%;
     --foreground: 330 100% 10%;
@@ -233,6 +360,31 @@
     --sidebar-background: 330 100% 60%;
     --sidebar-foreground: 330 100% 98%;
   }
+
+  /* Flower Theme - Dark */
+  .flower.dark {
+    --background: 330 100% 10%;
+    --foreground: 330 100% 95%;
+    --card: 330 100% 15%;
+    --card-foreground: 330 100% 95%;
+    --popover: 330 100% 15%;
+    --popover-foreground: 330 100% 95%;
+    --primary: 330 100% 60%;
+    --primary-foreground: 330 100% 10%;
+    --secondary: 300 100% 60%;
+    --secondary-foreground: 330 100% 95%;
+    --muted: 330 100% 20%;
+    --muted-foreground: 330 100% 70%;
+    --accent: 300 100% 60%;
+    --accent-foreground: 330 100% 10%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 330 100% 10%;
+    --border: 330 100% 25%;
+    --input: 330 100% 25%;
+    --ring: 330 100% 60%;
+    --sidebar-background: 330 100% 20%;
+    --sidebar-foreground: 330 100% 95%;
+  }
 }
 
 @layer base {
@@ -243,6 +395,27 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    position: relative;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: var(--theme-background-image);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.15;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .dark body::before {
+    opacity: 0.08;
   }
 }
 
@@ -274,4 +447,26 @@
   .edu-stats-change.negative {
     @apply text-red-600;
   }
+}
+
+/* 3D Theme Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes wave {
+  0% { transform: translateX(0) translateY(0); }
+  25% { transform: translateX(5px) translateY(-5px); }
+  50% { transform: translateX(0) translateY(0); }
+  75% { transform: translateX(-5px) translateY(5px); }
+  100% { transform: translateX(0) translateY(0); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-wave {
+  animation: wave 5s ease-in-out infinite;
 }

@@ -44,6 +44,11 @@ export const useAuthStore = create<AuthState>()(
         if (theme !== 'default') {
           document.documentElement.classList.add(theme);
         }
+        // Ensure dark mode state is maintained when changing themes
+        const state = useAuthStore.getState();
+        if (state.darkMode) {
+          document.documentElement.classList.add('dark');
+        }
         set({ theme });
       },
       toggleDarkMode: () => set((state) => {
