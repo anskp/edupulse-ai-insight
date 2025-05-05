@@ -60,14 +60,23 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
+## SCREENSHOTS
+![Screenshot 2025-04-24 040556](https://github.com/user-attachments/assets/2e868480-1438-4a8b-855e-e3404f643588)
 
-Simply open [Lovable](https://lovable.dev/projects/5126e87b-ea3e-40cc-ab74-0dce4bf0cbd1) and click on Share -> Publish.
+![Screenshot 2025-04-24 040635](https://github.com/user-attachments/assets/2c2060e6-628a-4014-b3a0-1878de96f996)
 
-## Can I connect a custom domain to my Lovable project?
+![Screenshot 2025-04-24 040726](https://github.com/user-attachments/assets/91e22383-4a5d-42f4-a70b-d787a7908e44)
 
-Yes, you can!
+![Screenshot 2025-04-24 040734](https://github.com/user-attachments/assets/b5224c28-d843-46e7-b780-cf84534dbb71)
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+![Screenshot 2025-04-24 040759](https://github.com/user-attachments/assets/125b8e0d-7a93-403f-a29b-831dc22ccbf4)
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+![Screenshot 2025-04-24 040806](https://github.com/user-attachments/assets/8f91e70c-c40b-44fd-a402-c2e40527cb94)
+
+![Screenshot 2025-04-24 040817](https://github.com/user-attachments/assets/ff79974b-040a-4e35-9ddf-ad176f05594b)
+
+![Screenshot 2025-04-24 040825](https://github.com/user-attachments/assets/e5067f9f-af83-46a2-92f5-12f5ad96afd5)
+
+![Screenshot 2025-04-24 040854](https://github.com/user-attachments/assets/2430c1b0-d2ad-4c5c-a19b-a0816c2b45ef)
+
+![Screenshot 2025-04-24 040907](https://github.com/user-attachments/assets/234f1e34-6aa2-4693-96ba-b3c6bf52ac48)
