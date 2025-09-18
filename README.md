@@ -1,8 +1,8 @@
 # Welcome to your Lovable project
 
-## Project info
+## Live Demo
 
-**URL**: https://lovable.dev/projects/5126e87b-ea3e-40cc-ab74-0dce4bf0cbd1
+**URL**: https://edupulse-ai-insight.vercel.app/admin
 
 ## How can I edit this code?
 
